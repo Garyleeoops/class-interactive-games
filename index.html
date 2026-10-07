@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
 <style>
 /* ============================================================
-   设计令牌 —— 延续 Cover Letter 游戏的 teal/amber 视觉体系
+   设计令牌 —— 延续排序游戏的 teal/amber 视觉体系
    ============================================================ */
 :root{
   --teal:#2ec4b6; --teal-dark:#1f9d92; --amber:#ffb703; --blue:#5b8def; --green:#34c77b;
@@ -62,6 +62,7 @@ body{
   text-decoration:none; color:inherit;
   transition:transform .15s, box-shadow .15s;
 }
+.game-card + .game-card{ margin-top:12px; }
 .game-card:hover{ transform:translateY(-2px); box-shadow:0 12px 32px rgba(40,90,85,.13); }
 .game-card:active{ transform:scale(.99); }
 .game-card-icon{
@@ -79,7 +80,7 @@ body{
   display:flex;align-items:center;justify-content:center;
   box-shadow:0 4px 12px rgba(46,196,182,.35);
 }
-.game-more{ margin-top:12px; font-size:12.5px; color:#9ab3ad; text-align:center; font-weight:600; }
+.game-more{ margin-top:14px; font-size:12.5px; color:#9ab3ad; text-align:center; font-weight:600; }
 
 .home-tips{ background:#fff; border:1px solid var(--line); border-radius:20px; padding:14px 18px; box-shadow:0 8px 28px rgba(40,90,85,.07); }
 .home-tips ul{ list-style:none; }
@@ -91,7 +92,8 @@ body{
 .home-footer{ text-align:center; color:#9ab3ad; font-size:12px; margin-top:28px; font-weight:600; }
 
 /* ============================================================
-   视图二：Cover Letter 排序挑战（原游戏完整保留）
+   视图二~四：排序游戏（Cover Letter / Introduction / Conclusion）
+   同一套类选择器，DOM ID 以 cl- / intro- / con- 前缀隔离
    ============================================================ */
 .wrap{ max-width:640px; margin:0 auto; padding:0 14px; }
 
@@ -167,14 +169,14 @@ body{
 .overlay{ position:fixed; inset:0; z-index:70; display:none; align-items:center; justify-content:center; background:linear-gradient(160deg, rgba(214,246,238,.92), rgba(219,235,251,.94)); backdrop-filter:blur(6px); padding:18px;}
 .overlay.show{ display:flex; animation:fadeIn .35s ease;}
 @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
-#confetti{ position:fixed; inset:0; z-index:75; pointer-events:none;}
+.confetti{ position:fixed; inset:0; z-index:75; pointer-events:none;}
 .success-card{ position:relative; z-index:72; background:#fff; border-radius:26px; padding:26px 22px; width:100%; max-width:560px; max-height:88vh; overflow:auto; text-align:center; box-shadow:0 26px 70px rgba(40,90,85,.28); animation:pop .55s cubic-bezier(.18,1.4,.4,1);}
 @keyframes pop{ 0%{transform:scale(.7);opacity:0} 100%{transform:scale(1);opacity:1} }
 .big-emoji{ font-size:52px; line-height:1; margin-bottom:6px; animation:bounce 1.2s infinite;}
 @keyframes bounce{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 .success-card h1{ font-family:var(--font-head); font-size:34px; font-weight:700; background:linear-gradient(120deg,var(--teal),var(--blue)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; margin:4px 0 6px;}
 .success-card .sub{ color:var(--ink-soft); font-size:14px; line-height:1.7; margin-bottom:14px;}
-#bestLine{ color:var(--teal-dark); font-weight:800; }
+.best-line{ color:var(--teal-dark); font-weight:800; }
 .letter-preview{ display:none; text-align:left; background:#f8fcfb; border:1px solid #e2f0ed; border-radius:16px; padding:14px 16px; max-height:300px; overflow:auto; margin-bottom:14px; font-family:Georgia,'Times New Roman',serif; font-size:13.5px; line-height:1.75; color:#3c4f56;}
 .letter-preview.show{ display:block;}
 .letter-preview p{ margin-bottom:9px; white-space:pre-line;}
@@ -217,19 +219,49 @@ body{
 
     <section class="home-sec">
       <h3><span class="dot"></span> 可用游戏</h3>
+
       <a class="game-card" href="#game">
         <span class="game-card-icon">
           <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3 8 9 6 9-6"/></svg>
         </span>
         <span class="game-card-body">
-          <span class="game-card-tag">句子排序 · 拖拽 / 点选</span>
+          <span class="game-card-tag">句子排序 · 投稿信</span>
           <h4>Cover Letter 排序挑战</h4>
-          <p>把期刊投稿信的句子按正确顺序拼出来。拖动下方卡片到上方空位，或点选卡片再点击空位放置；全部排对即通关。</p>
+          <p>把期刊投稿信的句子按正确顺序拼出来，熟悉投稿信的完整结构与套路。</p>
         </span>
         <span class="game-card-go">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
         </span>
       </a>
+
+      <a class="game-card" href="#game-intro">
+        <span class="game-card-icon">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
+        </span>
+        <span class="game-card-body">
+          <span class="game-card-tag">句子排序 · 论文引言</span>
+          <h4>Introduction 排序挑战</h4>
+          <p>把论文引言的句子按正确顺序拼出来，理清从背景问题到研究定位的展开逻辑。</p>
+        </span>
+        <span class="game-card-go">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        </span>
+      </a>
+
+      <a class="game-card" href="#game-conclusion">
+        <span class="game-card-icon">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8 12 3 3 5-6"/></svg>
+        </span>
+        <span class="game-card-body">
+          <span class="game-card-tag">句子排序 · 论文结论</span>
+          <h4>Conclusion 排序挑战</h4>
+          <p>把论文结论的句子按正确顺序拼出来，梳理从主要发现到局限与展望的收束逻辑。</p>
+        </span>
+        <span class="game-card-go">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        </span>
+      </a>
+
       <p class="game-more">更多课堂游戏将陆续加入</p>
     </section>
 
@@ -240,6 +272,7 @@ body{
           <li><span><b>投影模式：</b>投屏到教室大屏，请一位学生上台操作，全班一起判断对错。</span></li>
           <li><span><b>学生模式：</b>把本站网址发给学生，手机浏览器打开即可，支持触屏拖拽。</span></li>
           <li><span><b>演示模式：</b>网址末尾加 <code>?demo=win</code> 可直接展示通关画面，用于课前演示。</span></li>
+          <li><span><b>三个游戏内容互不重复</b>，学生玩过其中一个也不会预先知道另外两个的答案。</span></li>
         </ul>
       </div>
     </section>
@@ -262,11 +295,11 @@ body{
           <p>期刊投稿信 · 句子排序挑战</p>
         </div>
         <div class="prog">
-          <span class="prog-num" id="progNum">0/21</span>
-          <button class="restart" id="btnRestart" title="重新开始">↻</button>
+          <span class="prog-num" id="cl-progNum">0/21</span>
+          <button class="restart" id="cl-btnRestart" title="重新开始">↻</button>
         </div>
       </div>
-      <div class="progbar"><i id="progBar"></i></div>
+      <div class="progbar"><i id="cl-progBar"></i></div>
     </div>
   </header>
 
@@ -279,28 +312,144 @@ body{
     </div>
 
     <div class="sec-label"><span class="dot"></span> 你的信件 · 按顺序放置</div>
-    <section class="letter" id="letter"></section>
+    <section class="letter" id="cl-letter"></section>
 
     <div class="tray-title"><span class="dot"></span> 句子卡片（乱序）
-      <span class="tray-count" id="trayCount">剩余 21 张</span></div>
-    <section class="tray" id="trayCards"></section>
+      <span class="tray-count" id="cl-trayCount">剩余 21 张</span></div>
+    <section class="tray" id="cl-trayCards"></section>
 
     <p class="footer">Academic Writing · 课堂小游戏 · 拖动卡片完成投稿信排序</p>
   </main>
 
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="cl-toast"></div>
 
-  <div class="overlay" id="overlay">
-    <canvas id="confetti"></canvas>
+  <div class="overlay" id="cl-overlay">
+    <canvas class="confetti" id="cl-confetti"></canvas>
     <div class="success-card">
       <div class="big-emoji">🎉</div>
       <h1>Congratulations!</h1>
-      <p class="sub">你已正确拼出完整的 Cover Letter 🎓<br>共用了 <b id="movesNum">0</b> 次放置<br><span id="bestLine"></span></p>
-      <div class="letter-preview" id="preview"></div>
+      <p class="sub">你已正确拼出完整的 Cover Letter 🎓<br>共用了 <b id="cl-movesNum">0</b> 次放置<br><span class="best-line" id="cl-bestLine"></span></p>
+      <div class="letter-preview" id="cl-preview"></div>
       <div class="actions">
-        <button class="btn btn-ghost" id="btnView">📄 查看完整信件</button>
-        <button class="btn btn-primary" id="btnAgain">🔄 再玩一次</button>
-        <button class="btn btn-plain" id="btnClose">关闭</button>
+        <button class="btn btn-ghost" id="cl-btnView">📄 查看完整信件</button>
+        <button class="btn btn-primary" id="cl-btnAgain">🔄 再玩一次</button>
+        <button class="btn btn-plain" id="cl-btnClose">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 视图三：Introduction 排序挑战 ===================== -->
+<div class="view" id="view-game-intro">
+  <header class="topbar">
+    <div class="wrap">
+      <div class="row">
+        <a class="back-btn" href="#home" title="返回游戏列表" aria-label="返回游戏列表">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
+        </a>
+        <div class="logo">📄</div>
+        <div class="titles">
+          <h1>Introduction Builder</h1>
+          <p>论文引言 · 句子排序挑战</p>
+        </div>
+        <div class="prog">
+          <span class="prog-num" id="intro-progNum">0/12</span>
+          <button class="restart" id="intro-btnRestart" title="重新开始">↻</button>
+        </div>
+      </div>
+      <div class="progbar"><i id="intro-progBar"></i></div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="intro">
+      <span class="tag">🎯 课堂任务</span><br>
+      把这篇论文的 <b>Introduction</b> 按<b>正确顺序</b>拼出来。<b>拖动</b>下方句子卡片到上方空位，
+      或<b>点击</b>卡片再点击空位放置；点击已放置的卡片可放回。<br>
+      <span class="muted">全部排对后会出现庆祝页面 🎉</span>
+    </div>
+
+    <div class="sec-label"><span class="dot"></span> 你的 Introduction · 按顺序放置</div>
+    <section class="letter" id="intro-letter"></section>
+
+    <div class="tray-title"><span class="dot"></span> 句子卡片（乱序）
+      <span class="tray-count" id="intro-trayCount">剩余 12 张</span></div>
+    <section class="tray" id="intro-trayCards"></section>
+
+    <p class="footer">Academic Writing · 课堂小游戏 · 拖动卡片完成论文引言排序</p>
+  </main>
+
+  <div class="toast" id="intro-toast"></div>
+
+  <div class="overlay" id="intro-overlay">
+    <canvas class="confetti" id="intro-confetti"></canvas>
+    <div class="success-card">
+      <div class="big-emoji">🎉</div>
+      <h1>Congratulations!</h1>
+      <p class="sub">你已正确拼出完整的 Introduction 🎓<br>共用了 <b id="intro-movesNum">0</b> 次放置<br><span class="best-line" id="intro-bestLine"></span></p>
+      <div class="letter-preview" id="intro-preview"></div>
+      <div class="actions">
+        <button class="btn btn-ghost" id="intro-btnView">📄 查看完整引言</button>
+        <button class="btn btn-primary" id="intro-btnAgain">🔄 再玩一次</button>
+        <button class="btn btn-plain" id="intro-btnClose">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 视图四：Conclusion 排序挑战 ===================== -->
+<div class="view" id="view-game-conclusion">
+  <header class="topbar">
+    <div class="wrap">
+      <div class="row">
+        <a class="back-btn" href="#home" title="返回游戏列表" aria-label="返回游戏列表">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
+        </a>
+        <div class="logo">📄</div>
+        <div class="titles">
+          <h1>Conclusion Builder</h1>
+          <p>论文结论 · 句子排序挑战</p>
+        </div>
+        <div class="prog">
+          <span class="prog-num" id="con-progNum">0/10</span>
+          <button class="restart" id="con-btnRestart" title="重新开始">↻</button>
+        </div>
+      </div>
+      <div class="progbar"><i id="con-progBar"></i></div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="intro">
+      <span class="tag">🎯 课堂任务</span><br>
+      把这篇论文的 <b>Conclusion</b> 按<b>正确顺序</b>拼出来。<b>拖动</b>下方句子卡片到上方空位，
+      或<b>点击</b>卡片再点击空位放置；点击已放置的卡片可放回。<br>
+      <span class="muted">全部排对后会出现庆祝页面 🎉</span>
+    </div>
+
+    <div class="sec-label"><span class="dot"></span> 你的 Conclusion · 按顺序放置</div>
+    <section class="letter" id="con-letter"></section>
+
+    <div class="tray-title"><span class="dot"></span> 句子卡片（乱序）
+      <span class="tray-count" id="con-trayCount">剩余 10 张</span></div>
+    <section class="tray" id="con-trayCards"></section>
+
+    <p class="footer">Academic Writing · 课堂小游戏 · 拖动卡片完成论文结论排序</p>
+  </main>
+
+  <div class="toast" id="con-toast"></div>
+
+  <div class="overlay" id="con-overlay">
+    <canvas class="confetti" id="con-confetti"></canvas>
+    <div class="success-card">
+      <div class="big-emoji">🎉</div>
+      <h1>Congratulations!</h1>
+      <p class="sub">你已正确拼出完整的 Conclusion 🎓<br>共用了 <b id="con-movesNum">0</b> 次放置<br><span class="best-line" id="con-bestLine"></span></p>
+      <div class="letter-preview" id="con-preview"></div>
+      <div class="actions">
+        <button class="btn btn-ghost" id="con-btnView">📄 查看完整结论</button>
+        <button class="btn btn-primary" id="con-btnAgain">🔄 再玩一次</button>
+        <button class="btn btn-plain" id="con-btnClose">关闭</button>
       </div>
     </div>
   </div>
@@ -308,10 +457,10 @@ body{
 
 <script>
 /* ============================================================
-   句子列表 —— 按正确顺序排列（下标 0 = 信件第 1 块）。
-   如需修改句子内容，直接编辑这里的文字即可，游戏会自动适应。
+   三个游戏的句子数据（每个数组都按正确顺序排列）。
+   如需修改句子内容，直接编辑对应数组里的文字即可，游戏会自动适应。
    ============================================================ */
-const SENTENCES = [
+const SENTENCES_COVER = [
   { text: `Patti Fisher, Ph.D.\nAssociate Professor, Department of Finance\nUniversity of Nice Weather\nUniversity Address\nemail@university.edu | (540) 231-XXXX` },
   { text: `February 28, 2026` },
   { text: `Dr. Elisa Foxes\nEditor in Chief, Journal of Economic Psychology` },
@@ -334,352 +483,402 @@ const SENTENCES = [
   { text: `Sincerely,` },
   { text: `Patti Fisher, Ph.D. (Corresponding Author)\nAssociate Professor, X Department\nUniversity of Nice Weather | email@vt.edu\n\nRui Yao, Ph.D.\nAssociate Professor, X Department\nUniversity of Nice Weather` }
 ];
-const N = SENTENCES.length;
 
-const $ = s => document.querySelector(s);
-const letterEl = $('#letter'), trayEl = $('#trayCards');
+const SENTENCES_INTRO = [
+  { text: `Students in higher education face a range of challenges, including managing their time effectively, balancing academic and personal responsibilities, and coping with academic demands and pressures to succeed (Beiter et al., 2015; Hill et al., 2018).` },
+  { text: `Altogether, these often-competing challenges lead to high levels of stress and anxiety among many students (American College Health Association, 2024; Ramón-Arbués et al., 2020), leading to mental health problems, a poorer quality of life, lower academic performance, and potentially dropping out altogether (Eisenberg et al., 2009; Madigan & Curran, 2021; Ribeiro et al., 2018).` },
+  { text: `Supportive interventions such as coaching have been shown to help students address these challenges by helping them to reach their university-related goals, fostering self-reflection and self-efficacy, and supporting stress management (Campbell & Mogashana, 2025). However, access to human coaching is limited, as it is resource-intensive and therefore available only to selected groups of students (Campbell & Mogashana, 2025).` },
+  { text: `Digital coaching formats, such as AI-based chatbot coaching, may help broaden access by providing scalable, flexible, cost-friendly, and personalized support (Passmore & Tee, 2023). In this context, AI-based (chatbot) coaching refers to a synchronous, interactive coaching process in which a machine takes on core functions of a coach, such as supporting their client in setting goals, exploring issues, reflecting on personal challenges, and developing actionable steps (Passmore, Olafsson, & Tee, 2025).` },
+  { text: `Supported by the rapid development in artificial intelligence and natural language processing, research on chatbot use in education has grown substantially. However, most of this work has focused on teaching-oriented chatbots that support discrete learning tasks, such as answering course content-related questions or enhancing comprehension (Debets et al., 2025, for a recent example of a methodologically rigorous, theoretically grounded study in this tradition, see Rücker & Becker-Genschow, 2025).` },
+  { text: `While these types of systems can enhance learning efficiency, they differ fundamentally from coaching interventions, with the latter receiving far less attention. Indeed, coaching is a developmental process that extends beyond task-specific support. It involves guiding individuals in setting and pursuing personal goals, reflecting on their experiences, regulating their behavior, and dealing with challenges over time (De Haan & Nilsson, 2023).` },
+  { text: `Thus, the scope and diversity of content involved with coaching interventions is far richer and more generalized when compared to teaching-oriented interventions. Nonetheless, the research on AI-based chatbot coaching remains limited, with the few existing studies primarily relying on qualitative, cross-sectional and simulated interactions (e.g., vignette-based, or Wizard-of-Oz designs, e.g., Figueroa et al., 2021; Kannampallil et al., 2022; Mai et al., 2021).` },
+  { text: `Further, evidence into the emergent or lasting effects of automated coaching interventions is particularly scarce (Passmore, Olafsson, & Tee, 2025), which represents a critical gap because meaningful progress toward personal goals will unfold over time and may only be observable through repeated measurement.` },
+  { text: `Therefore, recent work has called for more rigorous field studies, including longitudinal randomized controlled trials, to evaluate the effectiveness of AI-based coaching interventions over time (Debets et al., 2025; Passmore, Olafsson, & Tee, 2025).` },
+  { text: `In response to this call, we conducted a longitudinal between-subjects experiment with four measurement points, collected across approximately ten weeks within an academic semester. Specifically, we compare the effects on goal attainment, self-efficacy, and stress among university students of an AI chatbot-based coaching intervention to a self-administered literature-based self-study intervention, and a waitlist control.` },
+  { text: `In doing so we provide, to our knowledge, the first longitudinal field-experimental evidence on the effectiveness of AI-based chatbot coaching in an education context. Importantly, our study is characterized by repeated interaction with an AI-based coaching system across multiple sessions, resulting in a substantial cumulative interaction time of approximately 100 min.` },
+  { text: `As such, the findings offer initial empirical evidence for understanding the potential of AI-based chatbot coaching to support students in managing academic challenges.` }
+];
 
-let order = [], tray = [], selectedId = null, moves = 0, drag = null, toastTimer = null, confettiRaf = null, checkSeq = 0;
-
-function shuffle(a){ const arr=a.slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
-
-function makeCard(id, placed, slotIdx){
-  const c = document.createElement('div');
-  c.className = 'card ' + (placed ? 'placed' : 'tray-card');
-  c.dataset.id = id;
-  c.setAttribute('draggable', 'false');
-  if(placed) c.dataset.slot = slotIdx;
-  const grip = placed ? '' : '<span class="card-grip">⋮⋮</span>';
-  const num = placed ? '<span class="card-num">' + (slotIdx+1) + '</span>' : '';
-  c.innerHTML = grip + num + '<span class="ct"></span>';
-  c.querySelector('.ct').textContent = SENTENCES[id].text;
-  return c;
-}
-
-function render(){
-  letterEl.innerHTML = '';
-  for(let i=0;i<N;i++){
-    const slot = document.createElement('div');
-    slot.className = 'slot';
-    slot.dataset.slot = i;
-    if(order[i] >= 0){
-      slot.classList.add('filled');
-      slot.appendChild(makeCard(order[i], true, i));
-    } else {
-      slot.classList.add('empty');
-      const num = document.createElement('span'); num.className='slot-num'; num.textContent = i+1;
-      const hint = document.createElement('span'); hint.className='hint'; hint.textContent='将卡片放在这里';
-      slot.appendChild(num); slot.appendChild(hint);
-    }
-    letterEl.appendChild(slot);
-  }
-  trayEl.innerHTML = '';
-  if(tray.length===0){ trayEl.innerHTML='<div class="empty-tip">全部卡片已放置！检查顺序吧 ✨</div>'; }
-  tray.forEach(id => trayEl.appendChild(makeCard(id, false)));
-  updateProgress();
-}
-
-function updateProgress(){
-  const filled = order.filter(v=>v>=0).length;
-  $('#progNum').textContent = filled + '/' + N;
-  $('#progBar').style.width = (filled/N*100) + '%';
-  $('#trayCount').textContent = '剩余 ' + tray.length + ' 张';
-}
-
-function placeCard(id, fromSlot, si){
-  if(order[si] === id) return;
-  const old = order[si];
-  order[si] = id;
-  if(fromSlot >= 0) order[fromSlot] = -1;
-  else tray = tray.filter(x => x !== id);
-  if(old >= 0) tray.unshift(old);
-  selectedId = null;
-  moves++;
-  render();
-  const seq = ++checkSeq;
-  if(order.every(v => v >= 0)) setTimeout(() => { if(seq === checkSeq) check(); }, 650);
-}
-
-function returnToTray(si){
-  const id = order[si]; if(id < 0) return;
-  order[si] = -1; tray.unshift(id); render();
-  toast('已放回卡片区', 'info');
-}
-
-function handleTap(id, fromSlot){
-  if(fromSlot >= 0){
-    if(selectedId !== null) placeCard(selectedId, -1, fromSlot);
-    else returnToTray(fromSlot);
-  } else {
-    if(selectedId === id){
-      selectedId = null;
-      trayEl.querySelector('.card.selected')?.classList.remove('selected');
-      toast('已取消选择');
-    } else {
-      trayEl.querySelector('.card.selected')?.classList.remove('selected');
-      selectedId = id;
-      trayEl.querySelector('.card[data-id="'+id+'"]')?.classList.add('selected');
-      toast('已选中卡片，点击上方空位放置');
-    }
-  }
-}
-
-/* ---------- Drag & drop (pointer events, 手机/电脑通用) ---------- */
-function startDrag(e, card){
-  if(drag) return;
-  const id = +card.dataset.id;
-  const fromSlot = card.dataset.slot !== undefined ? +card.dataset.slot : -1;
-  const rect = card.getBoundingClientRect();
-  const clone = document.createElement('div');
-  clone.className = 'card drag-clone';
-  clone.innerHTML = card.innerHTML;
-  clone.style.width = rect.width + 'px';
-  clone.style.left = rect.left + 'px';
-  clone.style.top = rect.top + 'px';
-  document.body.appendChild(clone);
-  drag = { id, fromSlot, card, clone, w: rect.width, h: rect.height, startX: e.clientX, startY: e.clientY, px: e.clientX, py: e.clientY, pointerId: e.pointerId, moved: false, active: true, raf: 0 };
-  card.classList.add('dragging-source');
-  card.setPointerCapture(e.pointerId);
-  card.addEventListener('pointermove', onDragMove);
-  card.addEventListener('pointerup', onDragEnd);
-  card.addEventListener('pointercancel', onDragCancel);
-}
-
-function positionClone(){
-  drag.clone.style.left = (drag.px - drag.w/2) + 'px';
-  drag.clone.style.top = (drag.py - drag.h/2) + 'px';
-}
-
-function highlightSlot(){
-  const el = document.elementFromPoint(drag.px, drag.py);
-  const slot = el ? el.closest('.slot') : null;
-  document.querySelectorAll('.slot.drop-hover').forEach(s => { if(s !== slot) s.classList.remove('drop-hover'); });
-  if(slot) slot.classList.add('drop-hover');
-}
-
-function onDragMove(e){
-  drag.px = e.clientX; drag.py = e.clientY;
-  if(!drag.moved && Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) > 8){
-    drag.moved = true;
-    drag.h = drag.card.getBoundingClientRect().height;
-  }
-  if(drag.moved){
-    positionClone();
-    highlightSlot();
-    if(!drag.raf) drag.raf = requestAnimationFrame(edgeScroll);
-  }
-}
-
-function edgeScroll(){
-  if(!drag.active) return;
-  const vh = window.innerHeight;
-  let dy = 0;
-  if(drag.py < 90) dy = -16;
-  else if(drag.py > vh - 90) dy = 16;
-  if(dy) window.scrollBy(0, dy);
-  positionClone();
-  drag.raf = requestAnimationFrame(edgeScroll);
-}
-
-function endDrag(){
-  drag.active = false;
-  if(drag.raf) cancelAnimationFrame(drag.raf);
-  document.querySelectorAll('.slot.drop-hover').forEach(s => s.classList.remove('drop-hover'));
-  drag.card.classList.remove('dragging-source');
-  if(drag.card.hasPointerCapture && drag.card.hasPointerCapture(drag.pointerId)) drag.card.releasePointerCapture(drag.pointerId);
-  drag.card.removeEventListener('pointermove', onDragMove);
-  drag.card.removeEventListener('pointerup', onDragEnd);
-  drag.card.removeEventListener('pointercancel', onDragCancel);
-}
-
-function onDragEnd(e){
-  drag.px = e.clientX; drag.py = e.clientY;
-  const wasMoved = drag.moved;
-  const tapInfo = { id: drag.id, fromSlot: drag.fromSlot };
-  endDrag();
-  const clone = drag.clone;
-  if(!wasMoved){
-    clone.remove();
-    drag = null;
-    handleTap(tapInfo.id, tapInfo.fromSlot);
-    return;
-  }
-  const el = document.elementFromPoint(drag.px, drag.py);
-  const slot = el ? el.closest('.slot') : null;
-  if(slot) placeCard(drag.id, drag.fromSlot, +slot.dataset.slot);
-  clone.remove();
-  drag = null;
-}
-
-function onDragCancel(){
-  const clone = drag.clone;
-  endDrag();
-  clone.remove();
-  drag = null;
-}
-
-/* ---------- 事件绑定 ---------- */
-letterEl.addEventListener('pointerdown', (e) => {
-  if(drag) return;
-  const cardEl = e.target.closest('.card');
-  if(cardEl){ e.preventDefault(); startDrag(e, cardEl); return; }
-  const slotEl = e.target.closest('.slot');
-  if(slotEl && order[+slotEl.dataset.slot] === -1){
-    if(selectedId !== null){ e.preventDefault(); placeCard(selectedId, -1, +slotEl.dataset.slot); }
-    else toast('请先从下方点选一张卡片，再点击这里放置');
-  }
-});
-
-trayEl.addEventListener('pointerdown', (e) => {
-  if(drag) return;
-  const cardEl = e.target.closest('.card');
-  if(!cardEl) return;
-  e.preventDefault();
-  startDrag(e, cardEl);
-});
-
-/* ---------- 校验 & 庆祝 ---------- */
-function check(){
-  const ok = order.every((v,i)=>v===i);
-  if(ok){ showSuccess(); return; }
-  const c = order.filter((v,i)=>v===i).length;
-  letterEl.classList.add('shake');
-  setTimeout(()=>letterEl.classList.remove('shake'), 600);
-  toast('⏳ 还差一点！目前 ' + c + '/' + N + ' 块位置正确，继续调整～', 'warn');
-}
-
-/* 最少步数纪录（localStorage，隐私模式下自动降级为无纪录） */
-const BEST_KEY = 'clg-best-cover-letter';
-function getBest(){ try{ return parseInt(localStorage.getItem(BEST_KEY)||'0',10)||0; }catch(e){ return 0; } }
-function setBest(v){ try{ localStorage.setItem(BEST_KEY, String(v)); }catch(e){} }
-
-function showSuccess(){
-  $('#movesNum').textContent = moves;
-  const prevBest = getBest();
-  let bestText = '';
-  if(prevBest === 0){ bestText = '这是你的第一次通关！'; }
-  else if(moves < prevBest){ bestText = '新纪录！最少步数：' + moves + ' 次（原纪录 ' + prevBest + ' 次）'; }
-  else { bestText = '最少步数纪录：' + prevBest + ' 次'; }
-  $('#bestLine').textContent = bestText;
-  setBest(prevBest === 0 ? moves : Math.min(prevBest, moves));
-  buildPreview();
-  $('#overlay').classList.add('show');
-  launchConfetti(5000);
-}
-
-function buildPreview(){
-  const pv = $('#preview'); pv.innerHTML='';
-  SENTENCES.forEach(s => {
-    const p = document.createElement('p');
-    p.textContent = s.text;
-    pv.appendChild(p);
-  });
-}
-
-function hideOverlay(){
-  $('#overlay').classList.remove('show');
-  if(confettiRaf){ cancelAnimationFrame(confettiRaf); confettiRaf = null; }
-  const c = $('#confetti'); c.getContext('2d').clearRect(0,0,c.width,c.height);
-}
-
-function launchConfetti(duration){
-  const canvas = $('#confetti');
-  const ctx = canvas.getContext('2d');
-  canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
-  const colors = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff9f68','#b07dff','#2ec4b6','#ff7b9c'];
-  const pieces = [];
-  const t0 = performance.now();
-
-  function spawn(n, burst){
-    for(let i=0;i<n;i++){
-      pieces.push({
-        x: burst ? canvas.width*(0.3+Math.random()*0.4) : Math.random()*canvas.width,
-        y: burst ? canvas.height*(0.15+Math.random()*0.3) : -20 - Math.random()*40,
-        w: 6+Math.random()*7, h: 8+Math.random()*10,
-        color: colors[Math.floor(Math.random()*colors.length)],
-        vx: (Math.random()-0.5)*2.4, vy: 2.2+Math.random()*3.2,
-        rot: Math.random()*Math.PI*2, vr: (Math.random()-0.5)*0.25,
-        circle: Math.random()<0.3, life: 1, fade: 0.0018+Math.random()*0.003
-      });
-    }
-  }
-  spawn(140, false);
-
-  function frame(now){
-    const elapsed = now - t0;
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    for(let i=pieces.length-1;i>=0;i--){
-      const p = pieces[i];
-      p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.fade;
-      if(p.life <= 0 || p.y > canvas.height + 30){ pieces.splice(i,1); continue; }
-      ctx.save();
-      ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
-      ctx.translate(p.x, p.y); ctx.rotate(p.rot);
-      ctx.fillStyle = p.color;
-      if(p.circle){ ctx.beginPath(); ctx.arc(0,0,p.w/2,0,Math.PI*2); ctx.fill(); }
-      else ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
-      ctx.restore();
-    }
-    if(elapsed < duration && Math.random() < 0.3) spawn(9, true);
-    if(elapsed < duration || pieces.length > 0){ confettiRaf = requestAnimationFrame(frame); }
-    else { ctx.clearRect(0,0,canvas.width,canvas.height); confettiRaf = null; }
-  }
-  confettiRaf = requestAnimationFrame(frame);
-}
-
-/* ---------- 操作按钮 ---------- */
-function newGame(){
-  checkSeq++;
-  order = Array(N).fill(-1);
-  tray = shuffle(Array.from({length:N}, (_,i)=>i));
-  selectedId = null; moves = 0;
-  $('#preview').classList.remove('show');
-  $('#btnView').textContent = '📄 查看完整信件';
-  hideOverlay();
-  render();
-  toast('已重新洗牌，开始挑战！');
-}
-
-$('#btnRestart').addEventListener('click', newGame);
-$('#btnAgain').addEventListener('click', newGame);
-$('#btnView').addEventListener('click', () => {
-  const pv = $('#preview'), b = $('#btnView');
-  pv.classList.toggle('show');
-  b.textContent = pv.classList.contains('show') ? '🙈 收起信件' : '📄 查看完整信件';
-});
-$('#btnClose').addEventListener('click', hideOverlay);
-
-function toast(msg, type){
-  const t = $('#toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + (type || '');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
-}
+const SENTENCES_CONCL = [
+  { text: `This study investigated the impact of emotional alignment and conflict between AI assistants and drivers on driving behavior, attention performance, and emotional perception, through a simulated driving experiment.` },
+  { text: `Drivers who were induced into either a pleasant or frustrated emotional state were paired with AI assistants expressing either positive or negative emotions.` },
+  { text: `The results revealed that positive emotions significantly enhanced drivers' attention, decision-making abilities, and emergency response speed, while reducing driving errors and accidents.` },
+  { text: `For drivers in a positive emotional state, an AI assistant with consistent emotional expression had a beneficial impact.` },
+  { text: `On the other hand, AI assistants expressing conflicting emotions played an important role in triggering self-regulation mechanisms in frustrated drivers, potentially improving attention, reaction speed, and overall driving performance.` },
+  { text: `Although the simulated driving environment in this study provides good control and experimental repeatability, there are still differences compared to real-world driving situations.` },
+  { text: `Therefore, although the results suggest that emotionally consistent AI assistants may help reduce accident rates in the simulated driving environment, this conclusion still requires further validation in real-world road tests or more advanced driving simulation systems.` },
+  { text: `Future intelligent driving systems could integrate multimodal emotion recognition technologies (such as facial expression analysis and speech emotion recognition) for real-time emotional monitoring, and use deep learning models such as LSTM or Transformer for emotion classification, enabling adaptive emotional regulation by the AI assistant.` },
+  { text: `Furthermore, it is recommended to assess the actual effectiveness of different emotional intervention strategies through real-world road tests or long-term driving simulation experiments, to validate the applicability and effectiveness of the AI assistant's emotional feedback mechanism in complex driving environments.` },
+  { text: `A reasonable application of these emotional alignment and conflict effects can provide more precise and multifaceted emotional guidance and human-machine collaboration strategies for intelligent driving systems, thereby effectively enhancing driver performance and improving traffic safety.` }
+];
 
 /* ============================================================
-   视图路由（单文件内 hash 路由：#home 首页 / #game 游戏）
-   首次进入游戏视图时才开局，返回首页不会丢失当前进度。
+   排序游戏引擎 —— 工厂函数，为每个游戏创建独立实例。
+   三个游戏共用同一套 DOM 结构，元素 ID 以 prefix 隔离。
    ============================================================ */
-let gameInited = false;
-function initGame(){
-  if(gameInited) return;
-  gameInited = true;
-  newGame();
-  /* 演示模式：网址后加 ?demo=win 可直接预览庆祝页面（课堂演示用） */
-  if(location.search.indexOf('demo=win') > -1){
-    order = SENTENCES.map((_,i)=>i);
-    tray = [];
-    render();
-    showSuccess();
+function createOrderGame(prefix, sentences, bestKey, viewLabel){
+  const N = sentences.length;
+  const el = id => document.getElementById(prefix + '-' + id);
+  const letterEl = el('letter'), trayEl = el('trayCards');
+
+  let order = [], tray = [], selectedId = null, moves = 0, drag = null, toastTimer = null, confettiRaf = null, checkSeq = 0, inited = false;
+
+  function shuffle(a){ const arr=a.slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+
+  function makeCard(id, placed, slotIdx){
+    const c = document.createElement('div');
+    c.className = 'card ' + (placed ? 'placed' : 'tray-card');
+    c.dataset.id = id;
+    c.setAttribute('draggable', 'false');
+    if(placed) c.dataset.slot = slotIdx;
+    const grip = placed ? '' : '<span class="card-grip">⋮⋮</span>';
+    const num = placed ? '<span class="card-num">' + (slotIdx+1) + '</span>' : '';
+    c.innerHTML = grip + num + '<span class="ct"></span>';
+    c.querySelector('.ct').textContent = sentences[id].text;
+    return c;
   }
+
+  function render(){
+    letterEl.innerHTML = '';
+    for(let i=0;i<N;i++){
+      const slot = document.createElement('div');
+      slot.className = 'slot';
+      slot.dataset.slot = i;
+      if(order[i] >= 0){
+        slot.classList.add('filled');
+        slot.appendChild(makeCard(order[i], true, i));
+      } else {
+        slot.classList.add('empty');
+        const num = document.createElement('span'); num.className='slot-num'; num.textContent = i+1;
+        const hint = document.createElement('span'); hint.className='hint'; hint.textContent='将卡片放在这里';
+        slot.appendChild(num); slot.appendChild(hint);
+      }
+      letterEl.appendChild(slot);
+    }
+    trayEl.innerHTML = '';
+    if(tray.length===0){ trayEl.innerHTML='<div class="empty-tip">全部卡片已放置！检查顺序吧 ✨</div>'; }
+    tray.forEach(id => trayEl.appendChild(makeCard(id, false)));
+    updateProgress();
+  }
+
+  function updateProgress(){
+    const filled = order.filter(v=>v>=0).length;
+    el('progNum').textContent = filled + '/' + N;
+    el('progBar').style.width = (filled/N*100) + '%';
+    el('trayCount').textContent = '剩余 ' + tray.length + ' 张';
+  }
+
+  function placeCard(id, fromSlot, si){
+    if(order[si] === id) return;
+    const old = order[si];
+    order[si] = id;
+    if(fromSlot >= 0) order[fromSlot] = -1;
+    else tray = tray.filter(x => x !== id);
+    if(old >= 0) tray.unshift(old);
+    selectedId = null;
+    moves++;
+    render();
+    const seq = ++checkSeq;
+    if(order.every(v => v >= 0)) setTimeout(() => { if(seq === checkSeq) check(); }, 650);
+  }
+
+  function returnToTray(si){
+    const id = order[si]; if(id < 0) return;
+    order[si] = -1; tray.unshift(id); render();
+    toast('已放回卡片区', 'info');
+  }
+
+  function handleTap(id, fromSlot){
+    if(fromSlot >= 0){
+      if(selectedId !== null) placeCard(selectedId, -1, fromSlot);
+      else returnToTray(fromSlot);
+    } else {
+      if(selectedId === id){
+        selectedId = null;
+        trayEl.querySelector('.card.selected')?.classList.remove('selected');
+        toast('已取消选择');
+      } else {
+        trayEl.querySelector('.card.selected')?.classList.remove('selected');
+        selectedId = id;
+        trayEl.querySelector('.card[data-id="'+id+'"]')?.classList.add('selected');
+        toast('已选中卡片，点击上方空位放置');
+      }
+    }
+  }
+
+  /* ---------- Drag & drop (pointer events, 手机/电脑通用) ---------- */
+  function startDrag(e, card){
+    if(drag) return;
+    const id = +card.dataset.id;
+    const fromSlot = card.dataset.slot !== undefined ? +card.dataset.slot : -1;
+    const rect = card.getBoundingClientRect();
+    const clone = document.createElement('div');
+    clone.className = 'card drag-clone';
+    clone.innerHTML = card.innerHTML;
+    clone.style.width = rect.width + 'px';
+    clone.style.left = rect.left + 'px';
+    clone.style.top = rect.top + 'px';
+    document.body.appendChild(clone);
+    drag = { id, fromSlot, card, clone, w: rect.width, h: rect.height, startX: e.clientX, startY: e.clientY, px: e.clientX, py: e.clientY, pointerId: e.pointerId, moved: false, active: true, raf: 0 };
+    card.classList.add('dragging-source');
+    card.setPointerCapture(e.pointerId);
+    card.addEventListener('pointermove', onDragMove);
+    card.addEventListener('pointerup', onDragEnd);
+    card.addEventListener('pointercancel', onDragCancel);
+  }
+
+  function positionClone(){
+    drag.clone.style.left = (drag.px - drag.w/2) + 'px';
+    drag.clone.style.top = (drag.py - drag.h/2) + 'px';
+  }
+
+  function highlightSlot(){
+    const elm = document.elementFromPoint(drag.px, drag.py);
+    const slot = elm ? elm.closest('.slot') : null;
+    document.querySelectorAll('.slot.drop-hover').forEach(s => { if(s !== slot) s.classList.remove('drop-hover'); });
+    if(slot) slot.classList.add('drop-hover');
+  }
+
+  function onDragMove(e){
+    drag.px = e.clientX; drag.py = e.clientY;
+    if(!drag.moved && Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) > 8){
+      drag.moved = true;
+      drag.h = drag.card.getBoundingClientRect().height;
+    }
+    if(drag.moved){
+      positionClone();
+      highlightSlot();
+      if(!drag.raf) drag.raf = requestAnimationFrame(edgeScroll);
+    }
+  }
+
+  function edgeScroll(){
+    if(!drag.active) return;
+    const vh = window.innerHeight;
+    let dy = 0;
+    if(drag.py < 90) dy = -16;
+    else if(drag.py > vh - 90) dy = 16;
+    if(dy) window.scrollBy(0, dy);
+    positionClone();
+    drag.raf = requestAnimationFrame(edgeScroll);
+  }
+
+  function endDrag(){
+    drag.active = false;
+    if(drag.raf) cancelAnimationFrame(drag.raf);
+    document.querySelectorAll('.slot.drop-hover').forEach(s => s.classList.remove('drop-hover'));
+    drag.card.classList.remove('dragging-source');
+    if(drag.card.hasPointerCapture && drag.card.hasPointerCapture(drag.pointerId)) drag.card.releasePointerCapture(drag.pointerId);
+    drag.card.removeEventListener('pointermove', onDragMove);
+    drag.card.removeEventListener('pointerup', onDragEnd);
+    drag.card.removeEventListener('pointercancel', onDragCancel);
+  }
+
+  function onDragEnd(e){
+    drag.px = e.clientX; drag.py = e.clientY;
+    const wasMoved = drag.moved;
+    const tapInfo = { id: drag.id, fromSlot: drag.fromSlot };
+    endDrag();
+    const clone = drag.clone;
+    if(!wasMoved){
+      clone.remove();
+      drag = null;
+      handleTap(tapInfo.id, tapInfo.fromSlot);
+      return;
+    }
+    const elm = document.elementFromPoint(drag.px, drag.py);
+    const slot = elm ? elm.closest('.slot') : null;
+    if(slot) placeCard(drag.id, drag.fromSlot, +slot.dataset.slot);
+    clone.remove();
+    drag = null;
+  }
+
+  function onDragCancel(){
+    const clone = drag.clone;
+    endDrag();
+    clone.remove();
+    drag = null;
+  }
+
+  /* ---------- 事件绑定 ---------- */
+  letterEl.addEventListener('pointerdown', (e) => {
+    if(drag) return;
+    const cardEl = e.target.closest('.card');
+    if(cardEl){ e.preventDefault(); startDrag(e, cardEl); return; }
+    const slotEl = e.target.closest('.slot');
+    if(slotEl && order[+slotEl.dataset.slot] === -1){
+      if(selectedId !== null){ e.preventDefault(); placeCard(selectedId, -1, +slotEl.dataset.slot); }
+      else toast('请先从下方点选一张卡片，再点击这里放置');
+    }
+  });
+
+  trayEl.addEventListener('pointerdown', (e) => {
+    if(drag) return;
+    const cardEl = e.target.closest('.card');
+    if(!cardEl) return;
+    e.preventDefault();
+    startDrag(e, cardEl);
+  });
+
+  /* ---------- 校验 & 庆祝 ---------- */
+  function check(){
+    const ok = order.every((v,i)=>v===i);
+    if(ok){ showSuccess(); return; }
+    const c = order.filter((v,i)=>v===i).length;
+    letterEl.classList.add('shake');
+    setTimeout(()=>letterEl.classList.remove('shake'), 600);
+    toast('⏳ 还差一点！目前 ' + c + '/' + N + ' 块位置正确，继续调整～', 'warn');
+  }
+
+  /* 最少步数纪录（localStorage，隐私模式下自动降级为无纪录） */
+  function getBest(){ try{ return parseInt(localStorage.getItem(bestKey)||'0',10)||0; }catch(e){ return 0; } }
+  function setBest(v){ try{ localStorage.setItem(bestKey, String(v)); }catch(e){} }
+
+  function showSuccess(){
+    el('movesNum').textContent = moves;
+    const prevBest = getBest();
+    let bestText = '';
+    if(prevBest === 0){ bestText = '这是你的第一次通关！'; }
+    else if(moves < prevBest){ bestText = '新纪录！最少步数：' + moves + ' 次（原纪录 ' + prevBest + ' 次）'; }
+    else { bestText = '最少步数纪录：' + prevBest + ' 次'; }
+    el('bestLine').textContent = bestText;
+    setBest(prevBest === 0 ? moves : Math.min(prevBest, moves));
+    buildPreview();
+    el('overlay').classList.add('show');
+    launchConfetti(5000);
+  }
+
+  function buildPreview(){
+    const pv = el('preview'); pv.innerHTML='';
+    sentences.forEach(s => {
+      const p = document.createElement('p');
+      p.textContent = s.text;
+      pv.appendChild(p);
+    });
+  }
+
+  function hideOverlay(){
+    el('overlay').classList.remove('show');
+    if(confettiRaf){ cancelAnimationFrame(confettiRaf); confettiRaf = null; }
+    const c = el('confetti'); c.getContext('2d').clearRect(0,0,c.width,c.height);
+  }
+
+  function launchConfetti(duration){
+    const canvas = el('confetti');
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    const colors = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff9f68','#b07dff','#2ec4b6','#ff7b9c'];
+    const pieces = [];
+    const t0 = performance.now();
+
+    function spawn(n, burst){
+      for(let i=0;i<n;i++){
+        pieces.push({
+          x: burst ? canvas.width*(0.3+Math.random()*0.4) : Math.random()*canvas.width,
+          y: burst ? canvas.height*(0.15+Math.random()*0.3) : -20 - Math.random()*40,
+          w: 6+Math.random()*7, h: 8+Math.random()*10,
+          color: colors[Math.floor(Math.random()*colors.length)],
+          vx: (Math.random()-0.5)*2.4, vy: 2.2+Math.random()*3.2,
+          rot: Math.random()*Math.PI*2, vr: (Math.random()-0.5)*0.25,
+          circle: Math.random()<0.3, life: 1, fade: 0.0018+Math.random()*0.003
+        });
+      }
+    }
+    spawn(140, false);
+
+    function frame(now){
+      const elapsed = now - t0;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      for(let i=pieces.length-1;i>=0;i--){
+        const p = pieces[i];
+        p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.fade;
+        if(p.life <= 0 || p.y > canvas.height + 30){ pieces.splice(i,1); continue; }
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
+        ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        if(p.circle){ ctx.beginPath(); ctx.arc(0,0,p.w/2,0,Math.PI*2); ctx.fill(); }
+        else ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+        ctx.restore();
+      }
+      if(elapsed < duration && Math.random() < 0.3) spawn(9, true);
+      if(elapsed < duration || pieces.length > 0){ confettiRaf = requestAnimationFrame(frame); }
+      else { ctx.clearRect(0,0,canvas.width,canvas.height); confettiRaf = null; }
+    }
+    confettiRaf = requestAnimationFrame(frame);
+  }
+
+  /* ---------- 操作按钮 ---------- */
+  function newGame(){
+    checkSeq++;
+    order = Array(N).fill(-1);
+    tray = shuffle(Array.from({length:N}, (_,i)=>i));
+    selectedId = null; moves = 0;
+    el('preview').classList.remove('show');
+    el('btnView').textContent = '📄 查看完整' + viewLabel;
+    hideOverlay();
+    render();
+    toast('已重新洗牌，开始挑战！');
+  }
+
+  el('btnRestart').addEventListener('click', newGame);
+  el('btnAgain').addEventListener('click', newGame);
+  el('btnView').addEventListener('click', () => {
+    const pv = el('preview'), b = el('btnView');
+    pv.classList.toggle('show');
+    b.textContent = pv.classList.contains('show') ? '🙈 收起' + viewLabel : '📄 查看完整' + viewLabel;
+  });
+  el('btnClose').addEventListener('click', hideOverlay);
+
+  function toast(msg, type){
+    const t = el('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + (type || '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  /* 首次进入该游戏视图时才开局；返回首页不丢失进度。
+     演示模式：网址后加 ?demo=win 可直接预览庆祝页面（课堂演示用）。 */
+  function init(){
+    if(inited) return;
+    inited = true;
+    newGame();
+    if(location.search.indexOf('demo=win') > -1){
+      order = sentences.map((_,i)=>i);
+      tray = [];
+      render();
+      showSuccess();
+    }
+  }
+
+  return { init };
 }
+
+/* ---------- 创建三个游戏实例 ---------- */
+const gameCover = createOrderGame('cl', SENTENCES_COVER, 'clg-best-cover-letter', '信件');
+const gameIntro = createOrderGame('intro', SENTENCES_INTRO, 'clg-best-introduction', '引言');
+const gameConcl = createOrderGame('con', SENTENCES_CONCL, 'clg-best-conclusion', '结论');
+
+/* ============================================================
+   视图路由（单文件内 hash 路由）
+   #home 首页 / #game Cover Letter / #game-intro Introduction / #game-conclusion Conclusion
+   ============================================================ */
+const VIEWS = [
+  { hash: '#home',          id: 'view-home' },
+  { hash: '#game',          id: 'view-game' },
+  { hash: '#game-intro',    id: 'view-game-intro' },
+  { hash: '#game-conclusion', id: 'view-game-conclusion' }
+];
 
 function route(){
   const h = location.hash || '#home';
-  document.getElementById('view-home').classList.toggle('active', h === '#home');
-  document.getElementById('view-game').classList.toggle('active', h === '#game');
-  if(h === '#game') initGame();
+  VIEWS.forEach(v => {
+    document.getElementById(v.id).classList.toggle('active', h === v.hash);
+  });
+  if(h === '#game') gameCover.init();
+  else if(h === '#game-intro') gameIntro.init();
+  else if(h === '#game-conclusion') gameConcl.init();
   window.scrollTo(0, 0);
 }
 

@@ -9,7 +9,12 @@
 | `index.html` | 单文件网站（首页游戏中心 + 全部游戏，页内 hash 路由切换） |
 
 - 首页：`#home`（默认）—— 游戏列表与课堂使用提示
-- 游戏：`#game` —— Cover Letter 排序挑战（期刊投稿信句子排序）
+- 游戏：
+  - `#game` —— Cover Letter 排序挑战（期刊投稿信句子排序，21 句）
+  - `#game-intro` —— Introduction 排序挑战（论文引言，12 句）
+  - `#game-conclusion` —— Conclusion 排序挑战（论文结论，10 句）
+
+三个游戏的句子内容互不重复（投稿信 / AI 辅导研究引言 / 驾驶模拟实验结论），学生玩过其中一个不会预先知道另外两个的答案。
 
 ## 课堂使用
 
@@ -37,13 +42,22 @@ python -m http.server 8777
 
 ## 修改游戏内容
 
-所有句子都在 `index.html` 的 `<script>` 中 `SENTENCES` 数组里（已按正确顺序排列）。直接编辑文字即可，游戏会自动适应卡片数量、进度条与编号，无需改其他代码。
+所有句子都在 `index.html` 的 `<script>` 中对应数组里（已按正确顺序排列）：
+
+| 游戏 | 数据数组 |
+|---|---|
+| Cover Letter | `SENTENCES_COVER` |
+| Introduction | `SENTENCES_INTRO` |
+| Conclusion | `SENTENCES_CONCL` |
+
+直接编辑文字即可，游戏会自动适应卡片数量、进度条与编号，无需改其他代码。
 
 ## 添加新游戏
 
-1. 在 `index.html` 中新增一个视图容器（`<div class="view" id="view-xxx">`）；
-2. 在路由函数 `route()` 中注册 `#xxx`；
-3. 在首页"可用游戏"区新增一张游戏卡片入口（参照现有 `game-card` 结构）。
+1. 在 `index.html` 中新增一个视图容器（`<div class="view" id="view-xxx">`），内部元素 ID 使用独立前缀（如 `xxx-`）；
+2. 在 `createOrderGame(prefix, sentences, bestKey, viewLabel)` 处新增一行实例化代码；
+3. 在 `VIEWS` 数组与 `route()` 中注册对应 hash；
+4. 在首页"可用游戏"区新增一张游戏卡片入口（参照现有 `game-card` 结构）。
 
 ## 技术说明
 
