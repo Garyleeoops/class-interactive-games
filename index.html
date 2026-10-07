@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2ec4b6">
+<title>Class Interactive Games · 课堂互动游戏</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* ============================================================
+   设计令牌 —— 延续 Cover Letter 游戏的 teal/amber 视觉体系
+   ============================================================ */
+:root{
+  --teal:#2ec4b6; --teal-dark:#1f9d92; --amber:#ffb703; --blue:#5b8def; --green:#34c77b;
+  --ink:#33454b; --ink-soft:#6b8289; --line:#e3f0ed;
+  --bg1:#eafaf6; --bg2:#e9f4fb;
+  --font-head:'Fredoka','Nunito',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;
+  --font-body:'Nunito','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{ -webkit-text-size-adjust:100%; }
+body{
+  font-family:var(--font-body); color:var(--ink);
+  background:
+    radial-gradient(900px 480px at 85% -5%, rgba(46,196,182,.16), transparent 60%),
+    radial-gradient(800px 420px at -5% 25%, rgba(91,141,239,.13), transparent 60%),
+    linear-gradient(180deg, var(--bg1), var(--bg2));
+  min-height:100vh; padding-bottom:46px; touch-action:manipulation;
+}
+
+/* ---- 视图切换（单文件内 hash 路由） ---- */
+.view{ display:none; }
+.view.active{ display:block; }
+
+/* ============================================================
+   视图一：首页 —— 课堂游戏中心
+   ============================================================ */
+.home-topbar{
+  position:sticky; top:0; z-index:40;
+  background:rgba(246,252,250,.9); backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(46,196,182,.15);
+}
+.home-inner{ max-width:720px; margin:0 auto; padding:12px 14px; display:flex; align-items:center; gap:12px; }
+.home-logo{ width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--teal),#6bc5ff); display:flex;align-items:center;justify-content:center;color:#fff; box-shadow:0 4px 12px rgba(46,196,182,.35); flex:0 0 auto;}
+.home-titles{ min-width:0; }
+.home-titles h1{ font-family:var(--font-head); font-size:20px; line-height:1.15; color:#24454d;}
+.home-titles p{ font-size:12.5px; color:var(--ink-soft); font-weight:600; }
+
+.home-main{ max-width:720px; margin:0 auto; padding:0 14px 26px; }
+.home-hero{ margin:26px 0 8px; }
+.home-eyebrow{ font-size:11.5px; font-weight:800; letter-spacing:.16em; color:var(--teal-dark); text-transform:uppercase; margin-bottom:8px; }
+.home-hero h2{ font-family:var(--font-head); font-size:27px; line-height:1.25; color:#24454d; margin-bottom:10px; }
+.home-hero p{ font-size:14px; line-height:1.85; color:#4a6168; max-width:58ch; }
+
+.home-sec h3{ font-family:var(--font-head); font-size:16px; color:#24454d; margin:24px 2px 12px; display:flex; align-items:center; gap:8px; }
+.home-sec h3 .dot{ width:9px;height:9px;border-radius:50%;background:var(--teal); flex:0 0 auto; }
+
+.game-card{
+  display:flex; align-items:center; gap:14px;
+  background:#fff; border:1px solid var(--line); border-radius:20px; padding:16px;
+  box-shadow:0 8px 28px rgba(40,90,85,.07);
+  text-decoration:none; color:inherit;
+  transition:transform .15s, box-shadow .15s;
+}
+.game-card:hover{ transform:translateY(-2px); box-shadow:0 12px 32px rgba(40,90,85,.13); }
+.game-card:active{ transform:scale(.99); }
+.game-card-icon{
+  flex:0 0 auto; width:54px;height:54px;border-radius:16px;
+  background:linear-gradient(180deg,#fffdf6,#fff3d6); border:1px solid #f3e3b8;
+  display:flex;align-items:center;justify-content:center;color:var(--amber);
+}
+.game-card-body{ flex:1; min-width:0; }
+.game-card-tag{ display:inline-block; font-size:11px; font-weight:800; color:var(--teal-dark); background:#e2f6f3; border-radius:999px; padding:2px 10px; margin-bottom:6px; }
+.game-card-body h4{ font-family:var(--font-head); font-size:17px; color:#24454d; margin-bottom:4px; }
+.game-card-body p{ font-size:12.5px; line-height:1.65; color:var(--ink-soft); }
+.game-card-go{
+  flex:0 0 auto; width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(120deg,var(--teal),#6bc5ff); color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(46,196,182,.35);
+}
+.game-more{ margin-top:12px; font-size:12.5px; color:#9ab3ad; text-align:center; font-weight:600; }
+
+.home-tips{ background:#fff; border:1px solid var(--line); border-radius:20px; padding:14px 18px; box-shadow:0 8px 28px rgba(40,90,85,.07); }
+.home-tips ul{ list-style:none; }
+.home-tips li{ display:flex; gap:10px; font-size:13px; line-height:1.7; color:#4a6168; padding:7px 0; }
+.home-tips li:first-child{ padding-top:2px; }
+.home-tips li::before{ content:''; flex:0 0 auto; width:8px;height:8px;border-radius:50%;background:var(--amber); margin-top:7px;}
+.home-tips b{ color:var(--teal-dark); }
+.home-tips code{ font-family:Consolas,Menlo,monospace; font-size:12px; background:#eef6f4; color:#1f9d92; border-radius:6px; padding:1px 6px; }
+.home-footer{ text-align:center; color:#9ab3ad; font-size:12px; margin-top:28px; font-weight:600; }
+
+/* ============================================================
+   视图二：Cover Letter 排序挑战（原游戏完整保留）
+   ============================================================ */
+.wrap{ max-width:640px; margin:0 auto; padding:0 14px; }
+
+/* ---- Top bar ---- */
+.topbar{
+  position:sticky; top:0; z-index:40;
+  background:rgba(246,252,250,.88); backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(46,196,182,.15);
+  padding:calc(10px + env(safe-area-inset-top)) 0 12px; margin-bottom:14px;
+}
+.topbar .row{ display:flex; align-items:center; gap:10px; }
+.back-btn{
+  flex:0 0 auto; width:38px;height:38px;border-radius:12px;background:#fff;border:1px solid var(--line);
+  color:var(--teal-dark);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 6px rgba(40,90,85,.06); text-decoration:none;
+}
+.back-btn:active{transform:scale(.94);}
+.logo{ width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--teal),#6bc5ff); display:flex;align-items:center;justify-content:center;font-size:19px; box-shadow:0 4px 12px rgba(46,196,182,.35); flex:0 0 auto;}
+.titles{ flex:1; min-width:0;}
+.titles h1{ font-family:var(--font-head); font-size:19px; line-height:1.15; color:#24454d;}
+.titles p{ font-size:12px; color:var(--ink-soft); font-weight:600; }
+.prog{ flex:0 0 auto; display:flex; align-items:center; gap:8px;}
+.prog-num{ font-family:var(--font-head); font-weight:700; font-size:14px; color:var(--teal-dark); background:#e2f6f3; border:1px solid #c4eae4; padding:5px 10px; border-radius:999px;}
+.restart{ width:38px;height:38px;border:none;border-radius:12px;background:#fff;border:1px solid var(--line);color:var(--teal-dark);font-size:17px;cursor:pointer;box-shadow:0 2px 6px rgba(40,90,85,.06);}
+.restart:active{transform:scale(.94);}
+.progbar{ height:6px; background:#e3efed; border-radius:999px; margin-top:10px; overflow:hidden;}
+.progbar i{ display:block;height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--teal),#6bc5ff); transition:width .35s ease;}
+
+/* ---- Intro ---- */
+.intro{ background:#fff; border:1px solid var(--line); border-radius:18px; padding:14px 16px; margin-bottom:16px; font-size:13.5px; line-height:1.75; color:#4a6168; box-shadow:0 3px 12px rgba(40,90,85,.05);}
+.intro b{color:var(--teal-dark);}
+.intro .tag{ display:inline-block;background:#e2f6f3;color:var(--teal-dark);font-weight:800;border-radius:999px;padding:2px 10px;font-size:11.5px;margin-bottom:6px;}
+.intro .muted{ color:#9ab3ad; }
+
+/* ---- Letter ---- */
+.sec-label{ display:flex;align-items:center;gap:8px;font-family:var(--font-head);font-size:15px;color:#24454d;margin:18px 2px 10px;}
+.sec-label .dot{width:9px;height:9px;border-radius:50%;background:var(--teal);}
+.letter{ background:#fff; border:1px solid var(--line); border-radius:20px; padding:14px 12px; box-shadow:0 8px 28px rgba(40,90,85,.07);}
+.slot{ position:relative; border:2px dashed #bfe4dd; background:#f6fdfb; border-radius:15px; min-height:58px; padding:12px 14px; margin-bottom:9px; display:flex; align-items:flex-start; gap:10px; transition:border-color .2s, background .2s, transform .2s; }
+.slot:last-child{margin-bottom:0;}
+.slot.empty .slot-num{ flex:0 0 auto; width:24px;height:24px;border-radius:50%;background:#d7efe9;color:var(--teal-dark);font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.slot.empty .hint{ color:#9ec8c1;font-size:12.5px;font-weight:600;padding-top:3px;}
+.slot.drop-hover{ border-color:var(--teal); background:#e9faf6; transform:scale(1.015); box-shadow:0 0 0 4px rgba(46,196,182,.12);}
+.slot.filled{ border:1.5px solid #d4ece6; background:#fff; min-height:0; padding:6px;}
+
+/* ---- Cards ---- */
+.card{ display:flex; gap:10px; align-items:flex-start; width:100%; font-size:14.5px; line-height:1.6; color:var(--ink); background:#fff; border-radius:13px; padding:11px 12px; border:1px solid #e6f1ee; box-shadow:0 2px 7px rgba(40,90,85,.06); cursor:grab; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; touch-action:none; transition:transform .15s, box-shadow .15s, opacity .2s;}
+.card.tray-card{ border-left:5px solid var(--amber); background:linear-gradient(180deg,#fffdf6,#fffcf3);}
+.card.placed{ border-left:5px solid var(--teal);}
+.card-num{ flex:0 0 auto; width:22px;height:22px;border-radius:50%;background:var(--teal);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;margin-top:2px;}
+.card-grip{ flex:0 0 auto; color:#c9d9d5; font-size:15px; font-weight:800; letter-spacing:-2px; margin-top:2px; }
+.card .ct{ flex:1; min-width:0; white-space:pre-line; word-break:break-word;}
+.card.dragging-source{ opacity:.3;}
+.card.selected{ box-shadow:0 0 0 3px var(--amber), 0 8px 18px rgba(255,183,3,.25); transform:translateY(-2px);}
+.drag-clone{ position:fixed; z-index:60; pointer-events:none; opacity:.96; box-shadow:0 20px 44px rgba(30,80,75,.28); transform:rotate(2deg); will-change:left,top; }
+
+/* ---- Tray ---- */
+.tray-title{ display:flex;align-items:center;gap:8px;font-family:var(--font-head);font-size:15px;color:#24454d;margin:20px 2px 10px;}
+.tray-title .dot{width:9px;height:9px;border-radius:50%;background:var(--amber);}
+.tray-count{ margin-left:auto; font-family:var(--font-body); font-size:12px; font-weight:700; color:var(--teal-dark); background:#e2f6f3; border-radius:999px; padding:3px 10px;}
+.tray{ background:#fff; border:1px solid var(--line); border-radius:20px; padding:12px; box-shadow:0 8px 28px rgba(40,90,85,.07);}
+.tray .card{ margin-bottom:9px; }
+.tray .card:last-child{ margin-bottom:0;}
+.tray .empty-tip{ text-align:center;color:#9ec8c1;font-size:13px;padding:14px;font-weight:600;}
+
+/* ---- Toast ---- */
+.toast{ position:fixed; left:50%; bottom:calc(28px + env(safe-area-inset-bottom)); transform:translate(-50%,16px); z-index:80; background:#32474e; color:#fff; font-size:13.5px; font-weight:700; padding:10px 18px; border-radius:999px; opacity:0; pointer-events:none; transition:all .25s ease; max-width:86vw; text-align:center; box-shadow:0 8px 24px rgba(30,60,65,.25);}
+.toast.show{ opacity:1; transform:translate(-50%,0);}
+.toast.warn{ background:#e8873a;}
+.toast.info{ background:#32474e;}
+
+/* ---- Success overlay ---- */
+.overlay{ position:fixed; inset:0; z-index:70; display:none; align-items:center; justify-content:center; background:linear-gradient(160deg, rgba(214,246,238,.92), rgba(219,235,251,.94)); backdrop-filter:blur(6px); padding:18px;}
+.overlay.show{ display:flex; animation:fadeIn .35s ease;}
+@keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+#confetti{ position:fixed; inset:0; z-index:75; pointer-events:none;}
+.success-card{ position:relative; z-index:72; background:#fff; border-radius:26px; padding:26px 22px; width:100%; max-width:560px; max-height:88vh; overflow:auto; text-align:center; box-shadow:0 26px 70px rgba(40,90,85,.28); animation:pop .55s cubic-bezier(.18,1.4,.4,1);}
+@keyframes pop{ 0%{transform:scale(.7);opacity:0} 100%{transform:scale(1);opacity:1} }
+.big-emoji{ font-size:52px; line-height:1; margin-bottom:6px; animation:bounce 1.2s infinite;}
+@keyframes bounce{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.success-card h1{ font-family:var(--font-head); font-size:34px; font-weight:700; background:linear-gradient(120deg,var(--teal),var(--blue)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; margin:4px 0 6px;}
+.success-card .sub{ color:var(--ink-soft); font-size:14px; line-height:1.7; margin-bottom:14px;}
+#bestLine{ color:var(--teal-dark); font-weight:800; }
+.letter-preview{ display:none; text-align:left; background:#f8fcfb; border:1px solid #e2f0ed; border-radius:16px; padding:14px 16px; max-height:300px; overflow:auto; margin-bottom:14px; font-family:Georgia,'Times New Roman',serif; font-size:13.5px; line-height:1.75; color:#3c4f56;}
+.letter-preview.show{ display:block;}
+.letter-preview p{ margin-bottom:9px; white-space:pre-line;}
+.letter-preview p:last-child{margin-bottom:0;}
+.actions{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center;}
+.btn{ font-family:var(--font-body); font-size:14px; font-weight:800; border:none; border-radius:999px; padding:11px 20px; cursor:pointer; transition:transform .15s;}
+.btn:active{transform:scale(.95);}
+.btn-primary{ background:linear-gradient(120deg,var(--teal),#6bc5ff); color:#fff; box-shadow:0 6px 16px rgba(46,196,182,.35);}
+.btn-ghost{ background:#fff; color:var(--teal-dark); border:2px solid var(--teal);}
+.btn-plain{ background:#eef4f3; color:var(--ink-soft);}
+
+.shake{ animation:shakeX .5s ease;}
+@keyframes shakeX{ 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+
+.footer{ text-align:center; color:#9ab3ad; font-size:12px; margin-top:26px; font-weight:600;}
+</style>
+</head>
+<body>
+
+<!-- ===================== 视图一：首页 ===================== -->
+<div class="view active" id="view-home">
+  <header class="home-topbar">
+    <div class="home-inner">
+      <div class="home-logo">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v4a3 3 0 0 1-3 3H2"/><path d="M21 3v4a3 3 0 0 1-3 3h-4"/><path d="M3 21v-4a3 3 0 0 1 3-3h4"/><path d="M15 21v-4a3 3 0 0 1 3-3h4"/></svg>
+      </div>
+      <div class="home-titles">
+        <h1>Class Interactive Games</h1>
+        <p>学术写作 · 课堂互动游戏</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="home-main">
+    <section class="home-hero">
+      <p class="home-eyebrow">Academic Writing · Classroom</p>
+      <h2>把课堂练习变成小游戏</h2>
+      <p>为研究生《学术论文写作》课准备的互动练习。投影到屏幕全班一起玩，或把链接发给学生，用手机浏览器直接打开挑战。</p>
+    </section>
+
+    <section class="home-sec">
+      <h3><span class="dot"></span> 可用游戏</h3>
+      <a class="game-card" href="#game">
+        <span class="game-card-icon">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3 8 9 6 9-6"/></svg>
+        </span>
+        <span class="game-card-body">
+          <span class="game-card-tag">句子排序 · 拖拽 / 点选</span>
+          <h4>Cover Letter 排序挑战</h4>
+          <p>把期刊投稿信的句子按正确顺序拼出来。拖动下方卡片到上方空位，或点选卡片再点击空位放置；全部排对即通关。</p>
+        </span>
+        <span class="game-card-go">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        </span>
+      </a>
+      <p class="game-more">更多课堂游戏将陆续加入</p>
+    </section>
+
+    <section class="home-sec">
+      <h3><span class="dot"></span> 课堂使用提示</h3>
+      <div class="home-tips">
+        <ul>
+          <li><span><b>投影模式：</b>投屏到教室大屏，请一位学生上台操作，全班一起判断对错。</span></li>
+          <li><span><b>学生模式：</b>把本站网址发给学生，手机浏览器打开即可，支持触屏拖拽。</span></li>
+          <li><span><b>演示模式：</b>网址末尾加 <code>?demo=win</code> 可直接展示通关画面，用于课前演示。</span></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <p class="home-footer">Academic Writing · 课堂互动游戏 · 纯前端，无需安装</p>
+</div>
+
+<!-- ===================== 视图二：Cover Letter 排序挑战 ===================== -->
+<div class="view" id="view-game">
+  <header class="topbar">
+    <div class="wrap">
+      <div class="row">
+        <a class="back-btn" href="#home" title="返回游戏列表" aria-label="返回游戏列表">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
+        </a>
+        <div class="logo">📩</div>
+        <div class="titles">
+          <h1>Cover Letter Builder</h1>
+          <p>期刊投稿信 · 句子排序挑战</p>
+        </div>
+        <div class="prog">
+          <span class="prog-num" id="progNum">0/21</span>
+          <button class="restart" id="btnRestart" title="重新开始">↻</button>
+        </div>
+      </div>
+      <div class="progbar"><i id="progBar"></i></div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="intro">
+      <span class="tag">🎯 课堂任务</span><br>
+      把这封投稿信按<b>正确顺序</b>拼出来。<b>拖动</b>下方句子卡片到上方空位，
+      或<b>点击</b>卡片再点击空位放置；点击已放置的卡片可放回。<br>
+      <span class="muted">全部排对后会出现庆祝页面 🎉</span>
+    </div>
+
+    <div class="sec-label"><span class="dot"></span> 你的信件 · 按顺序放置</div>
+    <section class="letter" id="letter"></section>
+
+    <div class="tray-title"><span class="dot"></span> 句子卡片（乱序）
+      <span class="tray-count" id="trayCount">剩余 21 张</span></div>
+    <section class="tray" id="trayCards"></section>
+
+    <p class="footer">Academic Writing · 课堂小游戏 · 拖动卡片完成投稿信排序</p>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="overlay" id="overlay">
+    <canvas id="confetti"></canvas>
+    <div class="success-card">
+      <div class="big-emoji">🎉</div>
+      <h1>Congratulations!</h1>
+      <p class="sub">你已正确拼出完整的 Cover Letter 🎓<br>共用了 <b id="movesNum">0</b> 次放置<br><span id="bestLine"></span></p>
+      <div class="letter-preview" id="preview"></div>
+      <div class="actions">
+        <button class="btn btn-ghost" id="btnView">📄 查看完整信件</button>
+        <button class="btn btn-primary" id="btnAgain">🔄 再玩一次</button>
+        <button class="btn btn-plain" id="btnClose">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   句子列表 —— 按正确顺序排列（下标 0 = 信件第 1 块）。
+   如需修改句子内容，直接编辑这里的文字即可，游戏会自动适应。
+   ============================================================ */
+const SENTENCES = [
+  { text: `Patti Fisher, Ph.D.\nAssociate Professor, Department of Finance\nUniversity of Nice Weather\nUniversity Address\nemail@university.edu | (540) 231-XXXX` },
+  { text: `February 28, 2026` },
+  { text: `Dr. Elisa Foxes\nEditor in Chief, Journal of Economic Psychology` },
+  { text: `Dear Dr. Elisa Foxes,` },
+  { text: `We are pleased to submit our manuscript, "Gender Differences in Financial Risk Tolerance," for consideration for publication in the Journal of Economic Psychology.` },
+  { text: `This is an original research article that hasn't been published elsewhere and isn't currently under review at another journal.` },
+  { text: `Our study examines why women consistently report lower financial risk tolerance than men, a pattern that has significant consequences for retirement wealth accumulation and long-term portfolio allocation.` },
+  { text: `Using data from the nationally representative 2013 Survey of Consumer Finances (n = 2,246 single-headed households), we apply a decomposition technique that allows the effects of the independent variables to differ between men and women.` },
+  { text: `Our results indicate that the gender disparity in risk tolerance isn't attributable to gender itself, but rather to gender differences in specific determinants of risk tolerance, most notably income uncertainty and net worth. Among our key findings: income uncertainty is associated with higher risk tolerance in men but lower risk tolerance in women. Net worth exerts a stronger positive effect on risk tolerance for men than for women.` },
+  { text: `We believe this manuscript is well suited to the Journal of Economic Psychology for several reasons.` },
+  { text: `The journal's focus on the intersection of economic behavior and psychological processes aligns closely with our investigation of how individual characteristics moderate the relationship between gender and risk tolerance.` },
+  { text: `Our work builds directly on prior research published in your journal, including studies on financial risk perception and household investment behavior.` },
+  { text: `This study makes a distinct contribution to the existing literature by identifying the specific factors that account for observed gender differences, rather than simply confirming that a gap exists.` },
+  { text: `These findings have practical implications for financial fiduciaries operating under the U.S. Department of Labor's fiduciary rule, who are required to provide investment recommendations in the client's best interest and who, research shows, may systematically underestimate women's risk tolerance.` },
+  { text: `All procedures were conducted in accordance with applicable research ethics guidelines. Because this study uses publicly available, de-identified survey data from the Federal Reserve Board, no IRB review was required at our institutions.` },
+  { text: `The manuscript was co-authored by Patti Fisher (Virginia Tech) and Rui Yao (University of Missouri). Both authors meet the journal's criteria for authorship and have approved this submission.` },
+  { text: `Neither author has a financial conflict of interest to disclose. This research wasn't supported by external funding.` },
+  { text: `We have no suggested or excluded reviewers to note at this time. We would be happy to provide supplemental tables or replication code upon request.` },
+  { text: `Thank you for your time and consideration. We look forward to hearing from you.` },
+  { text: `Sincerely,` },
+  { text: `Patti Fisher, Ph.D. (Corresponding Author)\nAssociate Professor, X Department\nUniversity of Nice Weather | email@vt.edu\n\nRui Yao, Ph.D.\nAssociate Professor, X Department\nUniversity of Nice Weather` }
+];
+const N = SENTENCES.length;
+
+const $ = s => document.querySelector(s);
+const letterEl = $('#letter'), trayEl = $('#trayCards');
+
+let order = [], tray = [], selectedId = null, moves = 0, drag = null, toastTimer = null, confettiRaf = null, checkSeq = 0;
+
+function shuffle(a){ const arr=a.slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+
+function makeCard(id, placed, slotIdx){
+  const c = document.createElement('div');
+  c.className = 'card ' + (placed ? 'placed' : 'tray-card');
+  c.dataset.id = id;
+  c.setAttribute('draggable', 'false');
+  if(placed) c.dataset.slot = slotIdx;
+  const grip = placed ? '' : '<span class="card-grip">⋮⋮</span>';
+  const num = placed ? '<span class="card-num">' + (slotIdx+1) + '</span>' : '';
+  c.innerHTML = grip + num + '<span class="ct"></span>';
+  c.querySelector('.ct').textContent = SENTENCES[id].text;
+  return c;
+}
+
+function render(){
+  letterEl.innerHTML = '';
+  for(let i=0;i<N;i++){
+    const slot = document.createElement('div');
+    slot.className = 'slot';
+    slot.dataset.slot = i;
+    if(order[i] >= 0){
+      slot.classList.add('filled');
+      slot.appendChild(makeCard(order[i], true, i));
+    } else {
+      slot.classList.add('empty');
+      const num = document.createElement('span'); num.className='slot-num'; num.textContent = i+1;
+      const hint = document.createElement('span'); hint.className='hint'; hint.textContent='将卡片放在这里';
+      slot.appendChild(num); slot.appendChild(hint);
+    }
+    letterEl.appendChild(slot);
+  }
+  trayEl.innerHTML = '';
+  if(tray.length===0){ trayEl.innerHTML='<div class="empty-tip">全部卡片已放置！检查顺序吧 ✨</div>'; }
+  tray.forEach(id => trayEl.appendChild(makeCard(id, false)));
+  updateProgress();
+}
+
+function updateProgress(){
+  const filled = order.filter(v=>v>=0).length;
+  $('#progNum').textContent = filled + '/' + N;
+  $('#progBar').style.width = (filled/N*100) + '%';
+  $('#trayCount').textContent = '剩余 ' + tray.length + ' 张';
+}
+
+function placeCard(id, fromSlot, si){
+  if(order[si] === id) return;
+  const old = order[si];
+  order[si] = id;
+  if(fromSlot >= 0) order[fromSlot] = -1;
+  else tray = tray.filter(x => x !== id);
+  if(old >= 0) tray.unshift(old);
+  selectedId = null;
+  moves++;
+  render();
+  const seq = ++checkSeq;
+  if(order.every(v => v >= 0)) setTimeout(() => { if(seq === checkSeq) check(); }, 650);
+}
+
+function returnToTray(si){
+  const id = order[si]; if(id < 0) return;
+  order[si] = -1; tray.unshift(id); render();
+  toast('已放回卡片区', 'info');
+}
+
+function handleTap(id, fromSlot){
+  if(fromSlot >= 0){
+    if(selectedId !== null) placeCard(selectedId, -1, fromSlot);
+    else returnToTray(fromSlot);
+  } else {
+    if(selectedId === id){
+      selectedId = null;
+      trayEl.querySelector('.card.selected')?.classList.remove('selected');
+      toast('已取消选择');
+    } else {
+      trayEl.querySelector('.card.selected')?.classList.remove('selected');
+      selectedId = id;
+      trayEl.querySelector('.card[data-id="'+id+'"]')?.classList.add('selected');
+      toast('已选中卡片，点击上方空位放置');
+    }
+  }
+}
+
+/* ---------- Drag & drop (pointer events, 手机/电脑通用) ---------- */
+function startDrag(e, card){
+  if(drag) return;
+  const id = +card.dataset.id;
+  const fromSlot = card.dataset.slot !== undefined ? +card.dataset.slot : -1;
+  const rect = card.getBoundingClientRect();
+  const clone = document.createElement('div');
+  clone.className = 'card drag-clone';
+  clone.innerHTML = card.innerHTML;
+  clone.style.width = rect.width + 'px';
+  clone.style.left = rect.left + 'px';
+  clone.style.top = rect.top + 'px';
+  document.body.appendChild(clone);
+  drag = { id, fromSlot, card, clone, w: rect.width, h: rect.height, startX: e.clientX, startY: e.clientY, px: e.clientX, py: e.clientY, pointerId: e.pointerId, moved: false, active: true, raf: 0 };
+  card.classList.add('dragging-source');
+  card.setPointerCapture(e.pointerId);
+  card.addEventListener('pointermove', onDragMove);
+  card.addEventListener('pointerup', onDragEnd);
+  card.addEventListener('pointercancel', onDragCancel);
+}
+
+function positionClone(){
+  drag.clone.style.left = (drag.px - drag.w/2) + 'px';
+  drag.clone.style.top = (drag.py - drag.h/2) + 'px';
+}
+
+function highlightSlot(){
+  const el = document.elementFromPoint(drag.px, drag.py);
+  const slot = el ? el.closest('.slot') : null;
+  document.querySelectorAll('.slot.drop-hover').forEach(s => { if(s !== slot) s.classList.remove('drop-hover'); });
+  if(slot) slot.classList.add('drop-hover');
+}
+
+function onDragMove(e){
+  drag.px = e.clientX; drag.py = e.clientY;
+  if(!drag.moved && Math.hypot(e.clientX - drag.startX, e.clientY - drag.startY) > 8){
+    drag.moved = true;
+    drag.h = drag.card.getBoundingClientRect().height;
+  }
+  if(drag.moved){
+    positionClone();
+    highlightSlot();
+    if(!drag.raf) drag.raf = requestAnimationFrame(edgeScroll);
+  }
+}
+
+function edgeScroll(){
+  if(!drag.active) return;
+  const vh = window.innerHeight;
+  let dy = 0;
+  if(drag.py < 90) dy = -16;
+  else if(drag.py > vh - 90) dy = 16;
+  if(dy) window.scrollBy(0, dy);
+  positionClone();
+  drag.raf = requestAnimationFrame(edgeScroll);
+}
+
+function endDrag(){
+  drag.active = false;
+  if(drag.raf) cancelAnimationFrame(drag.raf);
+  document.querySelectorAll('.slot.drop-hover').forEach(s => s.classList.remove('drop-hover'));
+  drag.card.classList.remove('dragging-source');
+  if(drag.card.hasPointerCapture && drag.card.hasPointerCapture(drag.pointerId)) drag.card.releasePointerCapture(drag.pointerId);
+  drag.card.removeEventListener('pointermove', onDragMove);
+  drag.card.removeEventListener('pointerup', onDragEnd);
+  drag.card.removeEventListener('pointercancel', onDragCancel);
+}
+
+function onDragEnd(e){
+  drag.px = e.clientX; drag.py = e.clientY;
+  const wasMoved = drag.moved;
+  const tapInfo = { id: drag.id, fromSlot: drag.fromSlot };
+  endDrag();
+  const clone = drag.clone;
+  if(!wasMoved){
+    clone.remove();
+    drag = null;
+    handleTap(tapInfo.id, tapInfo.fromSlot);
+    return;
+  }
+  const el = document.elementFromPoint(drag.px, drag.py);
+  const slot = el ? el.closest('.slot') : null;
+  if(slot) placeCard(drag.id, drag.fromSlot, +slot.dataset.slot);
+  clone.remove();
+  drag = null;
+}
+
+function onDragCancel(){
+  const clone = drag.clone;
+  endDrag();
+  clone.remove();
+  drag = null;
+}
+
+/* ---------- 事件绑定 ---------- */
+letterEl.addEventListener('pointerdown', (e) => {
+  if(drag) return;
+  const cardEl = e.target.closest('.card');
+  if(cardEl){ e.preventDefault(); startDrag(e, cardEl); return; }
+  const slotEl = e.target.closest('.slot');
+  if(slotEl && order[+slotEl.dataset.slot] === -1){
+    if(selectedId !== null){ e.preventDefault(); placeCard(selectedId, -1, +slotEl.dataset.slot); }
+    else toast('请先从下方点选一张卡片，再点击这里放置');
+  }
+});
+
+trayEl.addEventListener('pointerdown', (e) => {
+  if(drag) return;
+  const cardEl = e.target.closest('.card');
+  if(!cardEl) return;
+  e.preventDefault();
+  startDrag(e, cardEl);
+});
+
+/* ---------- 校验 & 庆祝 ---------- */
+function check(){
+  const ok = order.every((v,i)=>v===i);
+  if(ok){ showSuccess(); return; }
+  const c = order.filter((v,i)=>v===i).length;
+  letterEl.classList.add('shake');
+  setTimeout(()=>letterEl.classList.remove('shake'), 600);
+  toast('⏳ 还差一点！目前 ' + c + '/' + N + ' 块位置正确，继续调整～', 'warn');
+}
+
+/* 最少步数纪录（localStorage，隐私模式下自动降级为无纪录） */
+const BEST_KEY = 'clg-best-cover-letter';
+function getBest(){ try{ return parseInt(localStorage.getItem(BEST_KEY)||'0',10)||0; }catch(e){ return 0; } }
+function setBest(v){ try{ localStorage.setItem(BEST_KEY, String(v)); }catch(e){} }
+
+function showSuccess(){
+  $('#movesNum').textContent = moves;
+  const prevBest = getBest();
+  let bestText = '';
+  if(prevBest === 0){ bestText = '这是你的第一次通关！'; }
+  else if(moves < prevBest){ bestText = '新纪录！最少步数：' + moves + ' 次（原纪录 ' + prevBest + ' 次）'; }
+  else { bestText = '最少步数纪录：' + prevBest + ' 次'; }
+  $('#bestLine').textContent = bestText;
+  setBest(prevBest === 0 ? moves : Math.min(prevBest, moves));
+  buildPreview();
+  $('#overlay').classList.add('show');
+  launchConfetti(5000);
+}
+
+function buildPreview(){
+  const pv = $('#preview'); pv.innerHTML='';
+  SENTENCES.forEach(s => {
+    const p = document.createElement('p');
+    p.textContent = s.text;
+    pv.appendChild(p);
+  });
+}
+
+function hideOverlay(){
+  $('#overlay').classList.remove('show');
+  if(confettiRaf){ cancelAnimationFrame(confettiRaf); confettiRaf = null; }
+  const c = $('#confetti'); c.getContext('2d').clearRect(0,0,c.width,c.height);
+}
+
+function launchConfetti(duration){
+  const canvas = $('#confetti');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+  const colors = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff9f68','#b07dff','#2ec4b6','#ff7b9c'];
+  const pieces = [];
+  const t0 = performance.now();
+
+  function spawn(n, burst){
+    for(let i=0;i<n;i++){
+      pieces.push({
+        x: burst ? canvas.width*(0.3+Math.random()*0.4) : Math.random()*canvas.width,
+        y: burst ? canvas.height*(0.15+Math.random()*0.3) : -20 - Math.random()*40,
+        w: 6+Math.random()*7, h: 8+Math.random()*10,
+        color: colors[Math.floor(Math.random()*colors.length)],
+        vx: (Math.random()-0.5)*2.4, vy: 2.2+Math.random()*3.2,
+        rot: Math.random()*Math.PI*2, vr: (Math.random()-0.5)*0.25,
+        circle: Math.random()<0.3, life: 1, fade: 0.0018+Math.random()*0.003
+      });
+    }
+  }
+  spawn(140, false);
+
+  function frame(now){
+    const elapsed = now - t0;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(let i=pieces.length-1;i>=0;i--){
+      const p = pieces[i];
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.fade;
+      if(p.life <= 0 || p.y > canvas.height + 30){ pieces.splice(i,1); continue; }
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      if(p.circle){ ctx.beginPath(); ctx.arc(0,0,p.w/2,0,Math.PI*2); ctx.fill(); }
+      else ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    }
+    if(elapsed < duration && Math.random() < 0.3) spawn(9, true);
+    if(elapsed < duration || pieces.length > 0){ confettiRaf = requestAnimationFrame(frame); }
+    else { ctx.clearRect(0,0,canvas.width,canvas.height); confettiRaf = null; }
+  }
+  confettiRaf = requestAnimationFrame(frame);
+}
+
+/* ---------- 操作按钮 ---------- */
+function newGame(){
+  checkSeq++;
+  order = Array(N).fill(-1);
+  tray = shuffle(Array.from({length:N}, (_,i)=>i));
+  selectedId = null; moves = 0;
+  $('#preview').classList.remove('show');
+  $('#btnView').textContent = '📄 查看完整信件';
+  hideOverlay();
+  render();
+  toast('已重新洗牌，开始挑战！');
+}
+
+$('#btnRestart').addEventListener('click', newGame);
+$('#btnAgain').addEventListener('click', newGame);
+$('#btnView').addEventListener('click', () => {
+  const pv = $('#preview'), b = $('#btnView');
+  pv.classList.toggle('show');
+  b.textContent = pv.classList.contains('show') ? '🙈 收起信件' : '📄 查看完整信件';
+});
+$('#btnClose').addEventListener('click', hideOverlay);
+
+function toast(msg, type){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* ============================================================
+   视图路由（单文件内 hash 路由：#home 首页 / #game 游戏）
+   首次进入游戏视图时才开局，返回首页不会丢失当前进度。
+   ============================================================ */
+let gameInited = false;
+function initGame(){
+  if(gameInited) return;
+  gameInited = true;
+  newGame();
+  /* 演示模式：网址后加 ?demo=win 可直接预览庆祝页面（课堂演示用） */
+  if(location.search.indexOf('demo=win') > -1){
+    order = SENTENCES.map((_,i)=>i);
+    tray = [];
+    render();
+    showSuccess();
+  }
+}
+
+function route(){
+  const h = location.hash || '#home';
+  document.getElementById('view-home').classList.toggle('active', h === '#home');
+  document.getElementById('view-game').classList.toggle('active', h === '#game');
+  if(h === '#game') initGame();
+  window.scrollTo(0, 0);
+}
+
+window.addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>
