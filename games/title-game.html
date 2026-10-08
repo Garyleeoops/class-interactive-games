@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2ec4b6">
+<title>Title Match 挑战 · 标题匹配游戏</title>
+<link href="https://miaoda.feishu.cn/fonts/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#2ec4b6; --teal-dark:#1f9d92; --amber:#ffb703; --blue:#5b8def; --green:#34c77b;
+  --red:#ff6b6b; --ink:#33454b; --ink-soft:#6b8289; --line:#e3f0ed;
+  --bg:#f2faf7;
+  --font-head:'Fredoka','Nunito',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;
+  --font-body:'Nunito','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;touch-action:manipulation;}
+body{font-family:var(--font-body);color:var(--ink);background:var(--bg);}
+.wrap{max-width:640px;margin:0 auto;height:100%;display:flex;flex-direction:column;padding:0 14px;}
+
+/* ===== 屏幕切换 ===== */
+.screen{display:none;height:100dvh;}
+.screen.show{display:flex;flex-direction:column;}
+#screenStart,#screenStairs{overflow-y:auto;padding-top:calc(env(safe-area-inset-top) + 10px);}
+#screenRound{overflow:hidden;}
+
+/* ===== 开始页 ===== */
+.start-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px 22px;margin:auto;width:100%;box-shadow:0 10px 30px rgba(40,90,85,.08);text-align:center;}
+.logo{width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,var(--teal),#6bc5ff);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 12px;box-shadow:0 6px 18px rgba(46,196,182,.35);}
+.start-card h1{font-family:var(--font-head);font-size:26px;color:#24454d;}
+.start-card .sub{color:var(--ink-soft);font-size:14px;margin:4px 0 16px;font-weight:600;}
+.rules{background:#f7fdfb;border:1px solid #e2f2ee;border-radius:14px;padding:13px 15px;text-align:left;font-size:13.5px;line-height:1.85;color:#4a6168;margin-bottom:16px;}
+.rules b{color:var(--teal-dark);}
+.name-row{display:flex;gap:10px;margin-bottom:8px;}
+#nameInput{flex:1;min-width:0;border:2px solid #cfe7e2;border-radius:14px;padding:13px 14px;font-size:17px;font-family:var(--font-body);outline:none;background:#fff;color:var(--ink);}
+#nameInput:focus{border-color:var(--teal);}
+.btn{font-family:var(--font-body);font-size:16px;font-weight:800;border:none;border-radius:999px;padding:14px 24px;cursor:pointer;transition:transform .15s;}
+.btn:active{transform:scale(.96);}
+.btn-primary{background:linear-gradient(120deg,var(--teal),#6bc5ff);color:#fff;box-shadow:0 6px 16px rgba(46,196,182,.35);}
+.btn-ghost{background:#fff;color:var(--teal-dark);border:2px solid var(--teal);}
+.btn-plain{background:#eef4f3;color:var(--ink-soft);}
+#nameErr{min-height:18px;font-size:13px;color:var(--red);font-weight:700;text-align:left;margin-bottom:6px;}
+.panel{display:none;background:#fff;border:1px solid var(--line);border-radius:22px;padding:24px 22px;margin:auto;width:100%;text-align:center;box-shadow:0 10px 30px rgba(40,90,85,.08);}
+.panel.show{display:block;}
+.panel h2{font-family:var(--font-head);font-size:20px;color:#24454d;margin-bottom:8px;}
+.panel p{font-size:14px;color:var(--ink-soft);line-height:1.7;margin-bottom:16px;}
+.panel .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+.reset-link{display:inline-block;margin-top:14px;font-size:13px;color:#9ab3ad;font-weight:700;background:none;border:none;cursor:pointer;text-decoration:underline;}
+
+/* ===== 台阶页 ===== */
+.stair-head{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 16px;margin-bottom:16px;box-shadow:0 4px 14px rgba(40,90,85,.06);}
+.stair-head .ava{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--amber),#ff9f68);color:#fff;font-weight:800;font-size:17px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.stair-head .who{flex:1;min-width:0;}
+.stair-head .who b{font-size:16px;color:#24454d;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.stair-head .who span{font-size:12.5px;color:var(--ink-soft);font-weight:700;}
+.stair-title{font-family:var(--font-head);font-size:19px;color:#24454d;margin:6px 2px 14px;}
+.stair-title small{font-family:var(--font-body);font-size:12.5px;color:#9ab3ad;font-weight:700;margin-left:6px;}
+.stairs{display:flex;flex-direction:column-reverse;align-items:flex-start;gap:14px;padding:6px 2px 4px;}
+.step{display:flex;align-items:center;gap:12px;width:min(330px,76%);min-height:64px;border-radius:16px;padding:10px 16px;font-weight:800;font-size:15.5px;margin-left:calc(var(--s)*8%);transition:transform .15s;cursor:pointer;}
+.step:active{transform:scale(.97);}
+.step .step-num{flex:0 0 auto;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:17px;}
+.step .step-label{line-height:1.4;}
+.step.done{background:#e7f8ef;border:2px solid var(--green);color:#1e7d4f;}
+.step.done .step-num{background:var(--green);color:#fff;}
+.step.ready{background:linear-gradient(120deg,var(--teal),#6bc5ff);color:#fff;border:2px solid transparent;animation:pulse 1.6s ease-in-out infinite;}
+.step.ready .step-num{background:rgba(255,255,255,.25);color:#fff;}
+.step.locked{background:#f2f6f5;border:2px dashed #cfe0dc;color:#9ab3ad;cursor:not-allowed;}
+.step.locked .step-num{background:#e2eae8;color:#9ab3ad;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(46,196,182,.35);}50%{box-shadow:0 0 0 10px rgba(46,196,182,0);}}
+.flag{font-size:30px;margin-left:44%;line-height:1;}
+.stair-foot{text-align:center;font-size:12.5px;color:#9ab3ad;font-weight:600;margin-top:18px;}
+
+/* ===== 闯关页 ===== */
+.round-top{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:9px 12px;margin:8px 0 10px;box-shadow:0 3px 10px rgba(40,90,85,.05);flex:0 0 auto;}
+.back-btn{flex:0 0 auto;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--teal-dark);font-size:16px;cursor:pointer;}
+.back-btn:active{transform:scale(.94);}
+.round-no{flex:1;min-width:0;font-family:var(--font-head);font-size:15px;color:#24454d;}
+.chip{flex:0 0 auto;display:flex;align-items:center;gap:5px;background:#f0f8f6;border:1px solid #dceee9;border-radius:999px;padding:5px 10px;font-size:13px;font-weight:800;color:var(--teal-dark);}
+.chip.err{background:#fdf0f0;border-color:#f5d8d8;color:#d64545;}
+.abstract-wrap{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-bottom:10px;}
+.abstract{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;font-size:15px;line-height:1.75;color:#3c4f56;box-shadow:0 4px 14px rgba(40,90,85,.06);}
+.abstract .lbl{display:inline-block;background:#e2f6f3;color:var(--teal-dark);font-weight:800;border-radius:999px;padding:2px 10px;font-size:11.5px;margin-bottom:8px;}
+.options{flex:0 0 auto;padding-bottom:calc(env(safe-area-inset-bottom) + 8px);}
+.opt{display:block;width:100%;min-height:60px;text-align:left;background:#fff;border:2px solid #dbece7;border-radius:15px;padding:12px 15px;font-family:var(--font-body);font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.5;margin-bottom:9px;cursor:pointer;box-shadow:0 2px 8px rgba(40,90,85,.05);transition:transform .12s,border-color .15s,background .15s;}
+.opt:last-child{margin-bottom:0;}
+.opt:active{transform:scale(.98);}
+.opt.wrong{background:#ffecec;border-color:var(--red);color:#c0392b;cursor:not-allowed;animation:shakeX .4s ease;}
+.opt.correct{background:#e6f9ef;border-color:var(--green);color:#1e7d4f;cursor:default;}
+.opt:disabled{cursor:not-allowed;}
+@keyframes shakeX{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* ===== 过关弹层 ===== */
+.overlay{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;background:rgba(226,246,240,.92);backdrop-filter:blur(5px);padding:18px;}
+.overlay.show{display:flex;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.small-card{position:relative;z-index:72;background:#fff;border-radius:24px;padding:26px 22px;width:100%;max-width:460px;text-align:center;box-shadow:0 22px 60px rgba(40,90,85,.25);animation:pop .5s cubic-bezier(.18,1.4,.4,1);}
+@keyframes pop{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+.small-card .big{font-size:46px;line-height:1;margin-bottom:6px;}
+.small-card h2{font-family:var(--font-head);font-size:24px;color:#24454d;margin-bottom:12px;}
+.stat-row{display:flex;gap:10px;justify-content:center;margin-bottom:14px;}
+.stat{background:#f7fdfb;border:1px solid #e2f2ee;border-radius:13px;padding:10px 14px;min-width:86px;}
+.stat b{display:block;font-family:var(--font-head);font-size:19px;color:var(--teal-dark);}
+.stat span{font-size:12px;color:var(--ink-soft);font-weight:700;}
+.score-big{font-family:var(--font-head);font-size:30px;color:var(--amber);margin-bottom:16px;}
+.actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+
+/* ===== 最终庆祝 ===== */
+#confetti{position:fixed;inset:0;z-index:75;pointer-events:none;}
+.final-card{position:relative;z-index:72;background:#fff;border-radius:26px;padding:26px 20px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;text-align:center;box-shadow:0 26px 70px rgba(40,90,85,.28);animation:pop .55s cubic-bezier(.18,1.4,.4,1);}
+.final-card .big{font-size:52px;line-height:1;margin-bottom:6px;animation:bounce 1.2s infinite;}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.final-card h1{font-family:var(--font-head);font-size:32px;font-weight:700;background:linear-gradient(120deg,var(--teal),var(--blue));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;margin:4px 0 6px;}
+.final-card .sub{color:var(--ink-soft);font-size:14px;line-height:1.7;margin-bottom:12px;}
+.score-table{width:100%;border-collapse:collapse;background:#f8fcfb;border:1px solid #e2f0ed;border-radius:14px;overflow:hidden;font-size:13.5px;margin-bottom:14px;}
+.score-table th,.score-table td{padding:9px 6px;text-align:center;border-bottom:1px solid #e9f3f0;color:#3c4f56;}
+.score-table th{background:#e7f6f2;color:var(--teal-dark);font-size:12.5px;}
+.score-table tr.total td{font-weight:800;color:#24454d;border-bottom:none;font-family:var(--font-head);font-size:16px;background:#eefaf6;}
+.score-table tr.total td:last-child{color:var(--amber);}
+
+/* ===== Toast ===== */
+.toast{position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));transform:translate(-50%,16px);z-index:90;background:#32474e;color:#fff;font-size:14px;font-weight:700;padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:all .25s ease;max-width:88vw;text-align:center;box-shadow:0 8px 24px rgba(30,60,65,.25);}
+.toast.show{opacity:1;transform:translate(-50%,0);}
+.toast.warn{background:#e8873a;}
+</style>
+</head>
+<body>
+
+<!-- ========== 开始页 ========== -->
+<div class="screen" id="screenStart">
+  <div class="wrap">
+    <div class="start-card" id="formPanel">
+      <div class="logo">📚</div>
+      <h1>Title Match 挑战</h1>
+      <p class="sub">阅读摘要 · 选出唯一正确的标题</p>
+      <div class="rules">
+        <b>📜 玩法</b>：共 5 关，每关阅读一段<b>摘要（Abstract）</b>，再从 4 个标题中选出唯一正确的标题。<br>
+        <b>🏆 计分</b>：每关 100 分 − 用时(秒) − 错误×10 分；5 关总分 500。<br>
+        <b>⚠️ 规则</b>：每人限玩一次，请认真作答！
+      </div>
+      <div class="name-row">
+        <input id="nameInput" type="text" maxlength="20" placeholder="请输入你的姓名" autocomplete="off">
+      </div>
+      <div id="nameErr"></div>
+      <button class="btn btn-primary" id="btnStart" style="width:100%;">开始挑战 🚀</button>
+    </div>
+
+    <div class="panel" id="resumePanel">
+      <h2>欢迎回来 👋</h2>
+      <p id="resumeText"></p>
+      <div class="actions">
+        <button class="btn btn-primary" id="btnResume">继续挑战 ▶</button>
+        <button class="btn btn-ghost reset" id="btnResetResume">换一位同学</button>
+      </div>
+    </div>
+
+    <div class="panel" id="donePanel">
+      <h2>挑战已完成 ✅</h2>
+      <p id="doneText"></p>
+      <div class="actions">
+        <button class="btn btn-primary" id="btnViewScore">查看成绩单</button>
+        <button class="btn btn-ghost reset" id="btnResetDone">换一位同学</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 台阶页 ========== -->
+<div class="screen" id="screenStairs">
+  <div class="wrap">
+    <div class="stair-head">
+      <div class="ava" id="stAva">?</div>
+      <div class="who">
+        <b id="stName"></b>
+        <span id="stProg">已完成 0 / 5 关</span>
+      </div>
+      <button class="btn btn-plain reset" id="btnResetStairs" style="padding:9px 14px;font-size:13px;">换人</button>
+    </div>
+    <div class="stair-title">登台阶闯关 <small>点击可开始的台阶</small></div>
+    <div class="stairs" id="stairs"></div>
+    <p class="stair-foot">每关先读摘要，再从 4 个标题中选出正确的一个 · 用时越短、错误越少，得分越高</p>
+  </div>
+</div>
+
+<!-- ========== 闯关页 ========== -->
+<div class="screen" id="screenRound">
+  <div class="wrap">
+    <div class="round-top">
+      <button class="back-btn" id="btnBack" title="返回台阶">←</button>
+      <div class="round-no" id="rdTitle">第 1 / 5 关</div>
+      <div class="chip" id="timer">⏱ 0:00</div>
+      <div class="chip err" id="errChip">✗ 0</div>
+    </div>
+    <div class="abstract-wrap">
+      <div class="abstract">
+        <span class="lbl">📄 Abstract</span><br>
+        <div id="abstract"></div>
+      </div>
+    </div>
+    <div class="options" id="options"></div>
+  </div>
+</div>
+
+<!-- ========== 过关弹层 ========== -->
+<div class="overlay" id="roundOverlay">
+  <div class="small-card">
+    <div class="big">🎉</div>
+    <h2 id="rcNum">第 1 关完成！</h2>
+    <div class="stat-row">
+      <div class="stat"><b id="rcTime">0:00</b><span>用时</span></div>
+      <div class="stat"><b id="rcErr">0</b><span>错误次数</span></div>
+      <div class="stat"><b id="rcScore">100</b><span>本关得分</span></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" id="btnNext">下一关 ▶</button>
+      <button class="btn btn-ghost" id="btnToStairs">台阶总览</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 最终庆祝 ========== -->
+<div class="overlay" id="finalOverlay">
+  <canvas id="confetti"></canvas>
+  <div class="final-card">
+    <div class="big">🏆</div>
+    <h1>Congratulations!</h1>
+    <p class="sub" id="finalName"></p>
+    <table class="score-table" id="finalTable"></table>
+    <div class="actions">
+      <button class="btn btn-ghost" id="btnCloseFinal">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   题库 —— 5 关，每关：abstract 摘要 + title 正确标题 + 3 个干扰项
+   如需更换内容，直接编辑 ROUNDS 即可，游戏会自动适配数量。
+   ============================================================ */
+const ROUNDS = [
+  {
+    title: `The author is dead, but what if they never lived? A reception experiment on czech AI- and human-authored poetry`,
+    abstract: `Large language models are increasingly capable of producing creative texts, yet most studies on AI-generated poetry focus on English—a language that dominates training data. In this article, we examine the perception of AI- and human-written Czech poetry. We ask if Czech native speakers are able to identify it and how they aesthetically judge it. Participants performed at chance level when guessing authorship (45.8 per cent correct on average), indicating that Czech AI-generated poems were largely indistinguishable from human-written ones. Aesthetic evaluations revealed a strong authorship bias: when participants believed a poem was AI-generated, they rated it as less favorably, even though AI poems were in fact rated equally or more favorably than human ones on average. The logistic regression model uncovered that the more the people liked a poem, the less probable was that they accurately assign the authorship. Familiarity with poetry or literary background had no effect on recognition accuracy. Our findings show that AI can convincingly produce poetry even in a morphologically complex, low-resource (with respect to the training data of AI models) Slavic language such as Czech. The results suggest that readers’ beliefs about authorship and the aesthetic evaluation of the poem are interconnected.`,
+    distractors: [
+      `The death of the author in the digital age: A cross-linguistic reception analysis of English and Czech AI poetry`,
+      `Beyond chance: Generative language models, literary background, and recognition accuracy in Czech poetry perception`,
+      `Can native speakers spot the algorithm? Aesthetic evaluation and authorship identification of AI-authored Czech texts`
+    ]
+  },
+  {
+    title: `Always looking on the bright side: is there a positivity bias in research on job performance antecedents?`,
+    abstract: `Job performance is among the most commonly studied outcomes in the field of organizational behavior. While this volume of research has produced valuable insights into the antecedents of job performance, in this article, we explore whether a barrier to more sophisticated insights is a "positivity bias" in this literature: a systematic tendency to overemphasize highly positive psychological antecedents when studying favorable performance outcomes. Any such bias would yield a body of evidence on job performance that over-evidences the impact of its "brightest" antecedents, and under-evidences the impact of its less positive or even "darker" ones. We tested for a positivity bias in the job performance literature by comparing results of three studies: an analysis of over 20 years of hypothesizing on job performance across 10 leading journals (Study 1), and two studies of workers’ subjective accounts of the psychological antecedents of typical performance (Study 2) and maximum performance (Study 3). Our results provide initial evidence of a positivity bias in research on job performance antecedents (at least if the reference point is workers’ own accounts of favorable performance), suggesting a need for researchers to engage with a broader range of less positive antecedents in future studies.`,
+    distractors: [
+      `Chasing perfection: How positivity bias distorts the measurement of maximum job performance in organizational behavior`,
+      `Bright versus dark antecedents: A longitudinal study of psychological drivers in organizational job performance outcomes`,
+      `The cost of optimism: Evaluating the impact of positive psychological antecedents on employee productivity and retention`
+    ]
+  },
+  {
+    title: `Type 2 immune history trains lung macrophages for viral disease tolerance`,
+    abstract: `Severe respiratory viral disease varies widely among individuals and often reflects immunopathology rather than inadequate pathogen control, suggesting that previous immune history can prime the lungs towards disease tolerance. Here we show that nerve- and airway-associated macrophages (NAMs), a subset of interstitial macrophages, expand ephemerally after type 2 inflammation induced by Nippostrongylus brasiliensis. We therefore hypothesized that NAMs acquire epigenetically imprinted trained immunity and tested this using a heterologous challenge model in which mice that were previously infected with N. brasiliensis were challenged 4–6 weeks later with lethal H1N1 influenza. All of the N. brasiliensis-conditioned mice survived, whereas all of the unconditioned controls succumbed by days 5–6. Protection occurred without reduced viral burden or enhanced T cell responses, instead tracking with reduced immunopathology, amplified type 2 cues, increased efferocytosis and accelerated tissue repair. Using NAM-DTR mice, we show that conditioned NAMs are necessary and sufficient for protection: depletion or replacement with unconditioned NAMs abrogated survival, whereas adoptive transfer of conditioned NAMs conferred tolerance without enhancing viral clearance. Genomic analyses implicated an IL-4–STAT6–PPARγ and ARG1 chromatin program that imprints a pro-resolving and reparative NAM state driving tissue repair, type 2 immunity and efferocytosis during lethal respiratory viral infections. Finally, meta-analysis of human lung single-cell atlases from cohorts of healthy individuals and individuals with IPF and COPD revealed context-dependent NAM-like repair programs. These findings establish local trained immunity in lung-resident macrophages as a mechanism of disease tolerance and a therapeutic entry point for severe inflammatory respiratory infections.`,
+    distractors: [
+      `Type 2 inflammation and Nippostrongylus brasiliensis infection drive alveolar macrophage depletion in severe viral pneumonia`,
+      `Epigenetic imprinting of interstitial macrophages mediates viral clearance and pathogen control during H1N1 influenza infections`,
+      `Local trained immunity in lung-resident macrophages confers disease resistance against lethal respiratory viral challenges`
+    ]
+  },
+  {
+    title: `Wafer-scale epitaxy growth of high-mobility p-type boron carbon nitride`,
+    abstract: `A long-standing bottleneck in realizing two-dimensional (2D) CMOS technology lies in the lack of high-performance p-type semiconductors. Strong electron-doping tendencies, orbital localization and pronounced hole scattering have collectively impeded the development of stable, efficient p-type 2D materials. Here we report the epitaxy growth of boron carbon nitride (BCN) as a high-performance p-type semiconductor. By engineering the dehydrogenation and surface reaction pathways of monomethyl ammonia borane (MMAB) and ammonia borane (AB), we overcome a crucial barrier: the spatial and temporal mismatch in the delivery of boron (B), carbon (C) and nitrogen (N) atoms, which disrupts lattice uniformity. The result is a wafer-scale, monolayer 2D BCN in which C atoms and dimers primarily substitute for N sites within a continuously crystallized, locally distorted boron nitride lattice, leading to a sizable bandgap of 1.90 eV. Wafer-scale arrays of p-type BCN FETs exhibit benchmark performance, with a field-effect hole mobility of 100 cm² V⁻¹ s⁻¹, on-current >0.9 mA μm⁻¹, on–off ratio of 10⁸ and threshold voltage of −0.45 V, surpassing current state-of-the-art p-type 2D semiconductors. Our findings establish BCN as a scalable and stable p-type platform, bridging a critical gap in the materials palette for three-dimensional monolithic integration of complementary electronics.`,
+    distractors: [
+      `Epitaxial growth of two-dimensional boron carbon nitride nanosheets for high-performance complementary metal-oxide-semiconductor logic`,
+      `Overcoming spatial and temporal mismatch in chemical vapor deposition of wafer-scale p-type semiconductors`,
+      `High-mobility n-type boron carbon nitride for three-dimensional monolithic integration of complementary electronics`
+    ]
+  },
+  {
+    title: `Analysis of the effect of tea on the flavor-related characteristics of eggs: combined analysis of HS-SPME-GC-MS, E-tongue and E-nose technology`,
+    abstract: `茶叶蛋 (Tea-leaf eggs) are a traditional Chinese egg product, but the effects of tea type on quality-related and flavor-related characteristics remain not fully understood. This study compares tea-leaf eggs prepared with six representative teas using texture analysis, colorimetry, electronic nose (E-nose), electronic tongue (E-tongue), and headspace solid-phase microextraction gas chromatography–mass spectrometry (HS-SPME-GC-MS). Ripe Pu'er tea (RiPT) produced a deeper and more saturated color, while oolong tea (OT) and black tea (BT) showed distinct instrumental texture and taste response patterns. Tea addition was associated with increased compositional diversity and relative signal abundance of tentatively identified volatile organic compounds (VOCs) including aldehydes, ketones such as 2,3-butanedione, esters, and terpenoids. RiPT was also associated with reduced relative peak areas of compounds that are potential off-odor markers in tea-leaf eggs. This study provides preliminary instrumental insights into the potential role of tea type in modulating the quality attributes and volatile profiles of tea-leaf eggs, offering a reference basis for further investigation.`,
+    distractors: [
+      `Comparative profiling of volatile organic compounds in traditional Chinese tea-leaf eggs using electronic nose and gas chromatography`,
+      `Evaluating the textural attributes and colorimetric properties of tea-infused eggs prepared with ripe Pu'er and oolong tea`,
+      `Instrumental insights into off-odor marker reduction and volatile compound formation in fermented tea-leaf products`
+    ]
+  }
+];
+const N = ROUNDS.length;
+
+/* ========== 工具 ========== */
+const $ = s => document.querySelector(s);
+const LS_SESSION = 'title_game_session';
+const LS_NAMES = 'title_game_finished_names';
+function loadLS(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }
+function saveLS(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
+
+let session = loadLS(LS_SESSION);
+let names = loadLS(LS_NAMES) || [];
+
+let current = -1;          // 正在玩的关卡下标
+let options = [];          // 本关选项 [{text, correct, state}]
+let seconds = 0, errors = 0, timerId = null, answered = false;
+
+function shuffle(a){ const arr=a.slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+function fmt(s){ return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); }
+function saveSession(){ saveLS(LS_SESSION, session); }
+
+/* ========== 屏幕切换 ========== */
+function show(id){ ['screenStart','screenStairs','screenRound'].forEach(s => { document.getElementById(s).classList.toggle('show', s===id); }); }
+
+/* ========== Toast ========== */
+let toastTimer;
+function toast(msg, type){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ========== 开始页 ========== */
+function renderStart(){
+  const form = $('#formPanel'), resume = $('#resumePanel'), done = $('#donePanel');
+  if(!session){
+    form.style.display = 'block'; resume.classList.remove('show'); done.classList.remove('show');
+  } else if(!session.finished){
+    form.style.display = 'none'; resume.classList.add('show'); done.classList.remove('show');
+    $('#resumeText').textContent = session.name + ' 同学，你已完成 ' + session.rounds.filter(r=>r).length + ' / ' + N + ' 关，可以继续挑战（每人限玩一次，不会重置）。';
+  } else {
+    form.style.display = 'none'; resume.classList.remove('show'); done.classList.add('show');
+    const total = session.rounds.reduce((s,r)=>s+r.score,0);
+    $('#doneText').textContent = session.name + ' 同学已完成全部挑战，总分 ' + total + ' / ' + (N*100) + ' 分。';
+  }
+}
+
+$('#btnStart').addEventListener('click', () => {
+  const name = $('#nameInput').value.trim();
+  const err = $('#nameErr');
+  if(!name){ err.textContent = '请先输入姓名再开始'; return; }
+  if(name.length > 20){ err.textContent = '姓名不能超过 20 个字'; return; }
+  if(names.some(n => n.toLowerCase() === name.toLowerCase())){
+    err.textContent = '该同学已完成挑战，不能重复参加'; return;
+  }
+  err.textContent = '';
+  session = { name, rounds: Array(N).fill(null), current: 0, finished: false };
+  saveSession();
+  $('#nameInput').value = '';
+  showStairs();
+});
+
+$('#btnResume').addEventListener('click', () => showStairs());
+$('#btnViewScore').addEventListener('click', () => showFinal(true));
+
+/* 换一位同学（二次确认，保留已完成名单，防止同名重玩） */
+function bindReset(btn){
+  btn.addEventListener('click', () => {
+    if(btn.dataset.arm === '1'){
+      session = null;
+      localStorage.removeItem(LS_SESSION);
+      btn.dataset.arm = '0';
+      btn.textContent = '换一位同学';
+      renderStart();
+      show('screenStart');
+      toast('已清除当前记录，可换同学开始');
+    } else {
+      btn.dataset.arm = '1';
+      btn.textContent = '再点一次确认清除';
+      setTimeout(() => { if(btn.dataset.arm === '1'){ btn.dataset.arm = '0'; btn.textContent = '换一位同学'; } }, 2600);
+    }
+  });
+}
+bindReset($('#btnResetResume'));
+bindReset($('#btnResetDone'));
+bindReset($('#btnResetStairs'));
+
+/* ========== 台阶页 ========== */
+function showStairs(){
+  $('#stName').textContent = session.name;
+  $('#stAva').textContent = session.name.charAt(0).toUpperCase();
+  const doneCount = session.rounds.filter(r => r).length;
+  $('#stProg').textContent = '已完成 ' + doneCount + ' / ' + N + ' 关';
+  const wrap = $('#stairs');
+  wrap.innerHTML = '';
+  for(let i = 0; i < N; i++){
+    const r = session.rounds[i];
+    const step = document.createElement('div');
+    step.className = 'step';
+    step.style.setProperty('--s', i);
+    if(r){
+      step.classList.add('done');
+      step.innerHTML = '<span class="step-num">' + (i+1) + '</span><span class="step-label">✓ 得分 ' + r.score + '</span>';
+    } else if(i === session.current){
+      step.classList.add('ready');
+      step.innerHTML = '<span class="step-num">' + (i+1) + '</span><span class="step-label">开始挑战 ▶</span>';
+    } else {
+      step.classList.add('locked');
+      step.innerHTML = '<span class="step-num">' + (i+1) + '</span><span class="step-label">🔒 未解锁</span>';
+    }
+    step.addEventListener('click', () => onStepClick(i));
+    wrap.appendChild(step);
+  }
+  const flag = document.createElement('div');
+  flag.className = 'flag';
+  flag.textContent = '🏁';
+  wrap.appendChild(flag);
+  show('screenStairs');
+}
+
+function onStepClick(i){
+  if(i < session.current){ toast('该关已完成，不能重复挑战'); return; }
+  if(i > session.current){ toast('请先完成上一关'); return; }
+  startRound(i);
+}
+
+/* ========== 闯关 ========== */
+function startRound(i){
+  current = i;
+  answered = false; seconds = 0; errors = 0;
+  const rd = ROUNDS[i];
+  options = shuffle([{ text: rd.title, correct: true }, ...rd.distractors.map(t => ({ text: t, correct: false }))]);
+  $('#rdTitle').textContent = '第 ' + (i+1) + ' / ' + N + ' 关';
+  $('#abstract').textContent = rd.abstract;
+  const ob = $('#options');
+  ob.innerHTML = '';
+  options.forEach((o, idx) => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = o.text;
+    b.addEventListener('click', () => onOption(idx, b));
+    ob.appendChild(b);
+  });
+  updateTimer(); updateErr();
+  show('screenRound');
+  startTimer();
+}
+
+function startTimer(){ stopTimer(); timerId = setInterval(() => { seconds++; updateTimer(); }, 1000); }
+function stopTimer(){ if(timerId){ clearInterval(timerId); timerId = null; } }
+function updateTimer(){ $('#timer').textContent = '⏱ ' + fmt(seconds); }
+function updateErr(){ $('#errChip').textContent = '✗ ' + errors; }
+
+function onOption(idx, btn){
+  if(answered) return;
+  const o = options[idx];
+  if(o.state !== undefined) return;
+  if(!o.correct){
+    o.state = 'wrong';
+    errors++; updateErr();
+    btn.classList.add('wrong'); btn.disabled = true;
+    toast('回答错误，再试一次 ✗', 'warn');
+    return;
+  }
+  answered = true;
+  stopTimer();
+  o.state = 'correct';
+  btn.classList.add('correct');
+  document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+  const score = Math.max(0, 100 - seconds - errors * 10);
+  session.rounds[current] = { time: seconds, errors, score };
+  session.current = current + 1;
+  saveSession();
+  setTimeout(() => {
+    if(current === N - 1){ showFinal(false); }
+    else { showRoundDone(current, score); }
+  }, 550);
+}
+
+function showRoundDone(i, score){
+  $('#rcNum').textContent = '第 ' + (i+1) + ' 关完成！';
+  $('#rcTime').textContent = fmt(seconds);
+  $('#rcErr').textContent = errors;
+  $('#rcScore').textContent = score;
+  $('#roundOverlay').classList.add('show');
+}
+
+$('#btnNext').addEventListener('click', () => {
+  $('#roundOverlay').classList.remove('show');
+  startRound(session.current);
+});
+$('#btnToStairs').addEventListener('click', () => {
+  $('#roundOverlay').classList.remove('show');
+  showStairs();
+});
+$('#btnBack').addEventListener('click', () => {
+  if(answered) return;
+  stopTimer();
+  showStairs();
+});
+
+/* ========== 最终庆祝 ========== */
+function showFinal(alreadyDone){
+  $('#finalName').textContent = session.name + ' 同学，你已完成全部 ' + N + ' 关挑战！';
+  let total = 0, rows = '';
+  session.rounds.forEach((r, i) => { total += r.score; rows += '<tr><td>第 ' + (i+1) + ' 关</td><td>' + fmt(r.time) + '</td><td>' + r.errors + '</td><td>' + r.score + '</td></tr>'; });
+  rows += '<tr class="total"><td colspan="3">总分</td><td>' + total + '</td></tr>';
+  $('#finalTable').innerHTML = '<tr><th>关卡</th><th>用时</th><th>错误</th><th>得分</th></tr>' + rows;
+  if(!alreadyDone){
+    session.finished = true;
+    saveSession();
+    if(!names.some(n => n.toLowerCase() === session.name.toLowerCase())){
+      names.push(session.name);
+      saveLS(LS_NAMES, names);
+    }
+  }
+  $('#finalOverlay').classList.add('show');
+  launchConfetti(6000);
+}
+
+$('#btnCloseFinal').addEventListener('click', () => {
+  $('#finalOverlay').classList.remove('show');
+  renderStart();
+  show('screenStart');
+});
+
+/* ========== 撒花特效 ========== */
+let confettiRaf = null;
+function launchConfetti(duration){
+  const canvas = $('#confetti');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+  const colors = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff9f68','#b07dff','#2ec4b6','#ff7b9c'];
+  const pieces = [];
+  const t0 = performance.now();
+  function spawn(n, burst){
+    for(let i = 0; i < n; i++){
+      pieces.push({
+        x: burst ? canvas.width*(0.3+Math.random()*0.4) : Math.random()*canvas.width,
+        y: burst ? canvas.height*(0.15+Math.random()*0.3) : -20 - Math.random()*40,
+        w: 6+Math.random()*7, h: 8+Math.random()*10,
+        color: colors[Math.floor(Math.random()*colors.length)],
+        vx: (Math.random()-0.5)*2.4, vy: 2.2+Math.random()*3.2,
+        rot: Math.random()*Math.PI*2, vr: (Math.random()-0.5)*0.25,
+        circle: Math.random()<0.3, life: 1, fade: 0.0018+Math.random()*0.003
+      });
+    }
+  }
+  spawn(140, false);
+  function frame(now){
+    const elapsed = now - t0;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(let i = pieces.length-1; i >= 0; i--){
+      const p = pieces[i];
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.fade;
+      if(p.life <= 0 || p.y > canvas.height + 30){ pieces.splice(i,1); continue; }
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      if(p.circle){ ctx.beginPath(); ctx.arc(0,0,p.w/2,0,Math.PI*2); ctx.fill(); }
+      else ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    }
+    if(elapsed < duration && Math.random() < 0.3) spawn(9, true);
+    if(elapsed < duration || pieces.length > 0){ confettiRaf = requestAnimationFrame(frame); }
+    else { ctx.clearRect(0,0,canvas.width,canvas.height); confettiRaf = null; }
+  }
+  confettiRaf = requestAnimationFrame(frame);
+}
+
+/* ========== 初始化 ========== */
+renderStart();
+if(session && !session.finished){ showStairs(); }
+else if(session && session.finished){ show('screenStart'); showFinal(true); }
+else { show('screenStart'); }
+</script>
+</body>
+</html>
