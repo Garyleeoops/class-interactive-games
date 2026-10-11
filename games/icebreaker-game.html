@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Witch's Poison · 女巫的毒药</title>
+<style>
+  /* ========== 重置与基础（一屏全显） ========== */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100vw; height: 100vh; overflow: hidden;
+    font-family: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
+    font-size: 18px;
+    background: #140b2e; color: #f3e8ff;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  [hidden] { display: none !important; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+  input, textarea { font-family: inherit; }
+
+  /* ========== 魔法背景（星星 + 光点） ========== */
+  .magic-bg {
+    position: fixed; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse at 50% -10%, #3b2163 0%, #1c0f3f 45%, #120a2c 100%);
+    overflow: hidden;
+  }
+  .magic-bg .stars {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(2px 2px at 12% 18%, #fde68a, transparent),
+      radial-gradient(2px 2px at 28% 8%, #c4b5fd, transparent),
+      radial-gradient(1.5px 1.5px at 43% 26%, #fff, transparent),
+      radial-gradient(2px 2px at 58% 12%, #fde68a, transparent),
+      radial-gradient(1.5px 1.5px at 72% 22%, #c4b5fd, transparent),
+      radial-gradient(2px 2px at 85% 10%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 92% 30%, #fff, transparent),
+      radial-gradient(2px 2px at 8% 42%, #fde68a, transparent),
+      radial-gradient(1.5px 1.5px at 22% 55%, #fff, transparent),
+      radial-gradient(2px 2px at 35% 38%, #c4b5fd, transparent),
+      radial-gradient(1.5px 1.5px at 50% 48%, #fff, transparent),
+      radial-gradient(2px 2px at 64% 40%, #fde68a, transparent),
+      radial-gradient(1.5px 1.5px at 78% 52%, #fff, transparent),
+      radial-gradient(2px 2px at 90% 46%, #c4b5fd, transparent),
+      radial-gradient(1.5px 1.5px at 96% 60%, #fff, transparent);
+    animation: twinkle 3.5s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: .5; } to { opacity: 1; } }
+  .magic-bg .moon {
+    position: absolute; top: 7%; right: 10%;
+    width: 70px; height: 70px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff7d6, #f5d86a 75%);
+    box-shadow: 0 0 40px rgba(245,216,106,.55);
+  }
+  /* 魔法阵 */
+  .magic-bg .magic-circle {
+    position: absolute; left: 50%; top: 50%;
+    width: 160vmax; height: 160vmax;
+    border: 2px dashed rgba(168,85,247,.14);
+    border-radius: 50%;
+    transform: translate(-50%,-50%);
+    animation: spin 80s linear infinite;
+    pointer-events: none;
+  }
+  .magic-bg .magic-circle2 {
+    position: absolute; left: 50%; top: 50%;
+    width: 120vmax; height: 120vmax;
+    border: 1px solid rgba(245,158,11,.10);
+    border-radius: 50%;
+    transform: translate(-50%,-50%);
+    animation: spin 60s linear infinite reverse;
+    pointer-events: none;
+  }
+  @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+  /* ========== 主容器 ========== */
+  .container {
+    position: relative; z-index: 2;
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 2rem;
+  }
+
+  /* ========== 反馈面板 ========== */
+  .feedback-panel {
+    position: fixed; top: 1rem; right: 1rem;
+    background: rgba(20,10,50,.82);
+    border: 1px solid #6d4bbd;
+    color: #fff;
+    padding: .7rem 1.2rem;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    z-index: 1000;
+    display: flex; flex-direction: column; gap: .35rem;
+    min-width: 190px;
+    box-shadow: 0 0 24px rgba(124,58,237,.3);
+  }
+  .feedback-panel .row { display: flex; justify-content: space-between; gap: 1.2rem; }
+  .feedback-panel .val { font-weight: 700; color: #fbbf24; }
+  .feedback-panel .btn-home {
+    margin-top: .4rem; padding: .4rem .9rem;
+    background: #7c3aed; color: #fff;
+    border-radius: 8px; font-size: .95rem; font-weight: 600;
+  }
+
+  /* ========== 场景 ========== */
+  .scene {
+    width: 100%; max-width: 1000px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 1.4rem;
+  }
+  .scene[hidden] { display: none; }
+  .scene-title { font-size: 2.4rem; font-weight: 800; color: #fff; letter-spacing: 2px; text-shadow: 0 0 24px rgba(168,85,247,.6); }
+  .scene-sub { font-size: 1.15rem; color: #c4b5fd; }
+
+  /* ========== 按钮 ========== */
+  .btn {
+    background: #6d28d9; color: #fff;
+    padding: .85rem 2.4rem; font-size: 1.25rem; font-weight: 700;
+    border-radius: 14px;
+    box-shadow: 0 6px 22px rgba(109,40,217,.45);
+    transition: transform .12s, background .15s;
+  }
+  .btn:hover, .btn:active { background: #7c3aed; }
+  .btn:active { transform: scale(.97); }
+  .btn.gold { background: #b45309; box-shadow: 0 6px 22px rgba(180,83,9,.4); }
+  .btn.gold:hover, .btn.gold:active { background: #c96a12; }
+
+  /* ========== 主页 ========== */
+  .home-witch { font-size: 5.5rem; line-height: 1; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 0 30px rgba(168,85,247,.7)); }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  .home-title { font-size: 3.2rem; font-weight: 900; color: #fff; letter-spacing: 3px; text-shadow: 0 0 30px rgba(168,85,247,.8); }
+  .home-title small { display: block; font-size: 1.4rem; font-weight: 600; color: #fbbf24; margin-top: .3rem; letter-spacing: 8px; }
+  .home-desc { font-size: 1.1rem; color: #c4b5fd; text-align: center; line-height: 1.8; }
+  .home-potions { font-size: 1.6rem; letter-spacing: 10px; }
+
+  /* ========== 主题卡片 ========== */
+  .topic-grid {
+    display: flex; flex-wrap: wrap; gap: 1.1rem; justify-content: center;
+    max-width: 900px;
+  }
+  .topic-card {
+    width: 250px;
+    background: #251452; border: 2px solid #6d4bbd;
+    border-radius: 16px;
+    padding: 1.4rem 1rem;
+    text-align: center;
+    font-size: 1.35rem; font-weight: 700; color: #fff;
+    transition: transform .12s, border-color .15s, background .15s, box-shadow .15s;
+  }
+  .topic-card .emoji { font-size: 2.4rem; display: block; margin-bottom: .4rem; }
+  .topic-card small { display: block; font-size: .85rem; font-weight: 400; color: #a78bfa; margin-top: .3rem; }
+  .topic-card:hover, .topic-card:active {
+    border-color: #fbbf24; background: #32206b;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(168,85,247,.4);
+  }
+  .round-badge {
+    font-size: 1.1rem; color: #fbbf24; font-weight: 700;
+    background: rgba(180,83,9,.18); border: 1px solid #b45309;
+    padding: .35rem 1.2rem; border-radius: 30px;
+  }
+
+  /* ========== 设置毒药页 ========== */
+  .set-card {
+    width: min(560px, 92%);
+    background: #251452; border: 2px solid #6d4bbd;
+    border-radius: 20px;
+    padding: 2rem 2.2rem;
+    text-align: center;
+    box-shadow: 0 0 50px rgba(109,40,217,.35);
+  }
+  .set-card .tip { font-size: 1.1rem; color: #c4b5fd; margin-bottom: .5rem; }
+  .set-card .lock-note { font-size: .95rem; color: #fbbf24; margin-bottom: 1.1rem; }
+  .poison-input {
+    width: 230px; text-align: center;
+    font-size: 1.9rem; letter-spacing: .3em;
+    background: #140b2e; color: #4ade80;
+    border: 2px solid #6d4bbd; border-radius: 12px;
+    padding: .6rem .8rem; outline: none;
+  }
+  .poison-input:focus { border-color: #fbbf24; }
+  .set-card .len-hint { font-size: .95rem; color: #a78bfa; margin-top: .7rem; min-height: 1.4em; }
+  .set-card .btn-row { margin-top: 1.2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .set-card .ready { font-size: 1.15rem; color: #4ade80; margin-top: 1.1rem; font-weight: 700; }
+  .set-card .wordlist {
+    margin-top: 1.3rem; padding: .8rem 1rem;
+    background: rgba(124,58,237,.12);
+    border-radius: 10px;
+    font-size: .98rem; color: #c4b5fd; line-height: 1.9;
+    text-align: left;
+    max-height: 18vh; overflow: hidden;
+  }
+  .set-card .wordlist b { color: #fbbf24; }
+
+  /* ========== 猜词页 ========== */
+  .guess-area { display: flex; flex-direction: column; align-items: center; gap: 1.3rem; width: 100%; }
+  .cauldron { font-size: 4.5rem; line-height: 1; filter: drop-shadow(0 0 20px rgba(74,222,128,.5)); animation: bubble 2.2s ease-in-out infinite; }
+  @keyframes bubble { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+  .guess-topic { font-size: 1.2rem; color: #a78bfa; }
+  .guess-topic b { color: #fbbf24; }
+  .letter-hint { font-size: 1.05rem; color: #c4b5fd; }
+  .letter-hint b { color: #4ade80; font-size: 1.3rem; }
+  .input-area { display: flex; gap: 1rem; align-items: stretch; }
+  .guess-input {
+    width: 240px; text-align: center;
+    font-size: 1.9rem; font-weight: 700; letter-spacing: 2px;
+    background: #140b2e; color: #fff;
+    border: 2px solid #6d4bbd; border-radius: 12px;
+    outline: none; text-transform: lowercase;
+  }
+  .guess-input:focus { border-color: #4ade80; }
+  .guess-input::placeholder { font-size: 1rem; color: #5c4a8f; font-weight: 400; letter-spacing: 0; }
+  .message { font-size: 1.3rem; color: #fbbf24; min-height: 1.6em; font-weight: 700; text-align: center; }
+  .message.err { color: #f87171; }
+  .history { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; max-width: 760px; }
+  .history-tag {
+    padding: .3rem .9rem; border-radius: 20px;
+    font-size: 1rem; font-weight: 600;
+    background: #2b1a5e; color: #c4b5fd;
+  }
+
+  /* ========== 小鬼升天 Overlay ========== */
+  .ghost-overlay {
+    position: fixed; inset: 0; z-index: 3000;
+    background: radial-gradient(circle at 50% 30%, rgba(88,28,135,.65), rgba(10,5,25,.92) 70%);
+    display: none;
+    align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .ghost-overlay.active { display: flex; }
+  .ghost-overlay .flash {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 45%, rgba(245,158,11,.5), transparent 60%);
+    animation: gflash .8s ease-out 2;
+  }
+  @keyframes gflash { 0% { opacity: 1; } 100% { opacity: 0; } }
+  .ghost-emoji {
+    position: absolute; left: 50%; bottom: -180px;
+    font-size: 9rem; line-height: 1;
+    transform: translateX(-50%);
+    animation: riseUp 3.2s cubic-bezier(.4,.1,.6,1) forwards;
+    filter: drop-shadow(0 0 30px rgba(160,180,255,.8));
+  }
+  @keyframes riseUp {
+    0% { bottom: -180px; transform: translateX(-50%) rotate(0deg) scale(1); opacity: .9; }
+    30% { transform: translateX(-60%) rotate(-8deg) scale(1.05); }
+    60% { transform: translateX(-40%) rotate(6deg) scale(1.02); }
+    100% { bottom: 105vh; transform: translateX(-55%) rotate(-12deg) scale(.9); opacity: 0; }
+  }
+  .smoke {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(160,140,220,.22);
+    filter: blur(14px);
+    animation: smokeUp var(--t) ease-in forwards;
+  }
+  @keyframes smokeUp {
+    0% { transform: translate(-50%,0) scale(.4); opacity: .9; }
+    100% { transform: translate(-50%,-70vh) scale(2.2); opacity: 0; }
+  }
+  .skull { font-size: 4rem; animation: skullSpin 1.4s ease-in-out infinite; filter: drop-shadow(0 0 20px rgba(248,113,113,.7)); }
+  @keyframes skullSpin { 0%,100% { transform: rotate(-8deg) scale(1); } 50% { transform: rotate(8deg) scale(1.15); } }
+  .ghost-card {
+    position: relative; text-align: center;
+    animation: cardIn .5s cubic-bezier(.2,1.5,.4,1) both;
+    background: #251452; border: 2px solid #8b5cf6;
+    border-radius: 24px;
+    padding: 2.4rem 3.4rem;
+    box-shadow: 0 0 70px rgba(124,58,237,.5);
+  }
+  @keyframes cardIn { 0% { transform: scale(.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .ghost-card .poison-word { font-size: 2.6rem; font-weight: 900; color: #4ade80; text-shadow: 0 0 24px rgba(74,222,128,.6); }
+  .ghost-card .dead-tip { font-size: 1.4rem; color: #fca5a5; margin-top: .4rem; font-weight: 700; }
+  .ghost-card .btn-next {
+    margin-top: 1.5rem;
+    background: #7c3aed; color: #fff;
+    padding: .85rem 2.4rem; font-size: 1.2rem; font-weight: 700;
+    border-radius: 12px;
+  }
+  .ghost-card .btn-next.gold { background: #b45309; }
+
+  /* ========== 完成页 ========== */
+  .done-card {
+    text-align: center;
+    background: #251452; border: 2px solid #fbbf24;
+    border-radius: 24px;
+    padding: 2.2rem 3rem;
+    width: min(640px, 92%);
+    box-shadow: 0 0 60px rgba(245,158,11,.3);
+  }
+  .done-card .done-emoji { font-size: 4.5rem; }
+  .done-card h2 { font-size: 2rem; color: #fbbf24; margin: .6rem 0 .3rem; }
+  .done-card .done-sub { font-size: 1.05rem; color: #c4b5fd; margin-bottom: 1.2rem; }
+  .done-log { text-align: left; font-size: 1rem; color: #e9d5ff; line-height: 2; }
+  .done-log .row { display: flex; gap: .8rem; }
+  .done-log .round { color: #fbbf24; font-weight: 700; min-width: 2.4em; }
+  .done-log .word { color: #4ade80; font-weight: 700; }
+
+  /* ========== 响应式 ========== */
+  @media (max-width: 768px) {
+    .container { padding: 1rem; }
+    .feedback-panel { font-size: .9rem; min-width: 0; right: .6rem; top: .6rem; padding: .5rem .8rem; }
+    .scene-title { font-size: 1.8rem; }
+    .home-title { font-size: 2.2rem; }
+    .home-witch { font-size: 4rem; }
+    .topic-card { width: 175px; padding: 1rem .6rem; font-size: 1.1rem; }
+    .topic-card .emoji { font-size: 1.9rem; }
+    .ghost-emoji { font-size: 6.5rem; }
+    .ghost-card { padding: 1.6rem 1.4rem; }
+    .guess-input { width: 160px; font-size: 1.5rem; }
+    .set-card { padding: 1.4rem 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- 魔法背景 -->
+  <div class="magic-bg">
+    <div class="stars"></div>
+    <div class="moon"></div>
+    <div class="magic-circle"></div>
+    <div class="magic-circle2"></div>
+  </div>
+
+  <!-- 反馈面板 -->
+  <div class="feedback-panel">
+    <div class="row"><span>轮次</span><span class="val" id="roundText">1 / 5</span></div>
+    <div class="row"><span>主题</span><span class="val" id="topicText">-</span></div>
+    <button class="btn-home" id="btnHome">🏠 返回主页</button>
+  </div>
+
+  <div class="container">
+
+    <!-- ========== 主页 ========== -->
+    <div class="scene" id="sceneHome">
+      <div class="home-witch">🧙‍♀️</div>
+      <div class="home-title">Witch's Poison<small>女 巫 的 毒 药</small></div>
+      <p class="home-desc">女巫熬制了一锅毒药藏在单词里……<br>5 轮挑战，每轮选择一个主题，藏好毒药单词<br>学生轮流猜词，猜中者将被毒到！☠️</p>
+      <p class="home-potions">🧪 ☠️ 🔮</p>
+      <button class="btn" id="btnStart">🔮 开始施法</button>
+    </div>
+
+    <!-- ========== 主题选择页 ========== -->
+    <div class="scene" id="sceneTopic">
+      <span class="round-badge" id="topicRoundBadge">第 1 轮</span>
+      <div class="scene-title">选择一个主题</div>
+      <p class="scene-sub">本轮展示 5 类话题，点击其中一类，藏入毒药单词</p>
+      <div class="topic-grid" id="topicGrid"></div>
+    </div>
+
+    <!-- ========== 设置毒药页 ========== -->
+    <div class="scene" id="sceneSet">
+      <span class="round-badge" id="setRoundBadge">第 1 轮</span>
+      <div class="set-card">
+        <p class="tip">本轮主题：<b style="color:#fbbf24;" id="setTopicLabel">-</b></p>
+        <p class="lock-note">🔒 输入毒药单词（输入内容已隐藏，学生看不到）</p>
+        <input type="password" class="poison-input" id="poisonInput" autocomplete="off" spellcheck="false">
+        <p class="len-hint" id="setHint"></p>
+        <div class="btn-row">
+          <button class="btn" id="btnConfirmPoison">⚗️ 确认毒药</button>
+        </div>
+        <p class="ready" id="setReady" hidden>✅ 毒药已备好！让学生开始猜词吧</p>
+        <div class="btn-row" id="setStartRow" hidden>
+          <button class="btn gold" id="btnStartGame">🧪 开始猜词</button>
+          <button class="btn" id="btnReSet">重新设置</button>
+        </div>
+        <div class="wordlist" id="setWordList"></div>
+      </div>
+    </div>
+
+    <!-- ========== 猜词页 ========== -->
+    <div class="scene" id="sceneGuess">
+      <div class="guess-area">
+        <div class="cauldron">🧪</div>
+        <div class="guess-topic">第 <b id="guessRound">1</b> 轮 · 主题：<b id="guessTopic">-</b> · 毒药已藏好 🫥</div>
+        <p class="letter-hint">轮流猜词，猜中毒药单词的同学将被毒到！</p>
+        <div class="input-area">
+          <input type="text" class="guess-input" id="guessInput" placeholder="输入英文单词" autocomplete="off" spellcheck="false">
+          <button class="btn" id="btnGuess">✨ 猜！</button>
+        </div>
+        <div class="message" id="message"></div>
+        <div class="history" id="history"></div>
+      </div>
+    </div>
+
+    <!-- ========== 完成页 ========== -->
+    <div class="scene" id="sceneDone">
+      <div class="done-card">
+        <div class="done-emoji">🎉🧙‍♀️🎉</div>
+        <h2>五轮挑战全部完成！</h2>
+        <p class="done-sub">女巫的毒药已全部破解，你们太厉害了！</p>
+        <div class="done-log" id="doneLog"></div>
+        <div style="margin-top:1.5rem;">
+          <button class="btn gold" id="btnAgain">🔮 再来一局</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========== 小鬼升天 Overlay ========== -->
+  <div class="ghost-overlay" id="ghostOverlay">
+    <div class="flash"></div>
+    <div class="ghost-emoji" id="ghostEmoji">👻</div>
+    <div class="ghost-card">
+      <div class="skull">💀</div>
+      <p style="font-size:1.15rem;color:#c4b5fd;margin-top:.4rem;">猜中了毒药单词</p>
+      <p class="poison-word" id="ghostWord">-</p>
+      <p class="dead-tip">☠️ 你被毒到啦！小鬼升天～</p>
+      <button class="btn-next" id="btnNextRound">➡️ 下一轮</button>
+    </div>
+  </div>
+
+  <script>
+    // ========== 话题与词汇表（难度适中偏上，每类 10 词，词间有区分） ==========
+    const TOPICS = {
+      fruit:    { label: '🍎 Fruit 水果',     words: ['strawberry','pineapple','coconut','watermelon','blueberry','grapefruit','peach','lemon','cherry','mango'] },
+      food:     { label: '🍔 Food 食物',      words: ['sandwich','spaghetti','pancake','dumpling','chocolate','pudding','popcorn','vegetable','hamburger','noodle'] },
+      sports:   { label: '⚽ Sports 运动',     words: ['basketball','volleyball','badminton','gymnastics','swimming','baseball','hockey','skating','cycling','tennis'] },
+      school:   { label: '🏫 School 学校',     words: ['textbook','classroom','homework','science','subject','library','teacher','exam','notebook','ruler'] },
+      songs:    { label: '🎵 English Songs 英文歌', words: ['melody','rhythm','chorus','concert','orchestra','festival','guitar','piano','singer','music'] },
+      animals:  { label: '🐱 Animals 动物',    words: ['kangaroo','penguin','dolphin','leopard','giraffe','zebra','parrot','squirrel','camel','butterfly'] },
+      colors:   { label: '🌈 Colors 颜色',     words: ['purple','silver','golden','violet','turquoise','bronze','scarlet','emerald','coral','lavender'] },
+      body:     { label: '💪 Body 身体',       words: ['shoulder','elbow','stomach','forehead','throat','muscle','finger','cheek','chin','wrist'] },
+      weather:  { label: '☀️ Weather 天气',    words: ['thunder','rainbow','hurricane','blizzard','drizzle','foggy','breeze','lightning','frost','sunshine'] },
+      jobs:     { label: '👩‍⚕️ Jobs 职业',     words: ['engineer','scientist','musician','astronaut','professor','detective','architect','surgeon','librarian','chef'] }
+    };
+    const TOPIC_KEYS = Object.keys(TOPICS);
+
+    // ========== 状态管理 ==========
+    const STORAGE_KEY = 'witch_poison_v1';
+    const state = {
+      round: 1,          // 当前轮次 1-5
+      topicKey: null,    // 本轮话题 key
+      poison: null,      // 毒药单词（小写）
+      phase: 'home',     // home | topic | set | guess | done
+      log: []            // 每轮记录 {topic, word}
+    };
+
+    // ========== DOM 工具 ==========
+    const $ = id => document.getElementById(id);
+    function bind(el, handler) {
+      if (!el) return;
+      el.addEventListener('click', handler);
+      el.addEventListener('touchend', (e) => { e.preventDefault(); handler(e); });
+    }
+
+    // ========== 持久化 ==========
+    function saveState() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+    function loadState() {
+      try {
+        const s = localStorage.getItem(STORAGE_KEY);
+        if (s) Object.assign(state, JSON.parse(s));
+      } catch (e) {}
+    }
+
+    // ========== 场景切换 ==========
+    const scenes = ['sceneHome', 'sceneTopic', 'sceneSet', 'sceneGuess', 'sceneDone'];
+    function show(name) {
+      scenes.forEach(s => { $(s).hidden = (s !== name); });
+    }
+
+    // ========== 反馈面板 ==========
+    function updatePanel() {
+      $('roundText').textContent = state.round + ' / 5';
+      $('topicText').textContent = state.topicKey ? TOPICS[state.topicKey].label : '-';
+    }
+
+    // ========== 主页 ==========
+    function goHome() {
+      Object.assign(state, { round: 1, topicKey: null, poison: null, phase: 'home', log: [] });
+      saveState();
+      show('sceneHome');
+      updatePanel();
+    }
+
+    // ========== 主题选择 ==========
+    function openTopic() {
+      $('topicRoundBadge').textContent = '第 ' + state.round + ' 轮';
+      // 从话题池随机抽取 5 类展示
+      const keys = [...TOPIC_KEYS].sort(() => Math.random() - 0.5).slice(0, 5);
+      const grid = $('topicGrid');
+      grid.innerHTML = '';
+      keys.forEach(k => {
+        const card = document.createElement('button');
+        card.className = 'topic-card';
+        const t = TOPICS[k];
+        const parts = t.label.split(' ');
+        const emoji = parts[0];
+        const rest = parts.slice(1).join(' ');
+        card.innerHTML = '<span class="emoji">' + emoji + '</span>' + rest + '<small>' + t.words.length + ' 个候选词</small>';
+        bind(card, () => selectTopic(k));
+        grid.appendChild(card);
+      });
+      state.phase = 'topic';
+      saveState();
+      show('sceneTopic');
+      updatePanel();
+    }
+    function selectTopic(key) {
+      state.topicKey = key;
+      state.poison = null;
+      openSet();
+    }
+
+    // ========== 设置毒药 ==========
+    function openSet() {
+      const t = TOPICS[state.topicKey];
+      $('setRoundBadge').textContent = '第 ' + state.round + ' 轮';
+      $('setTopicLabel').textContent = t.label;
+      $('poisonInput').value = '';
+      $('setHint').textContent = '';
+      $('setReady').hidden = true;
+      $('setStartRow').hidden = true;
+      $('btnConfirmPoison').hidden = false;
+      $('setWordList').innerHTML = '<b>本主题候选词：</b>' + t.words.join(' · ');
+      state.phase = 'set';
+      saveState();
+      show('sceneSet');
+      updatePanel();
+      $('poisonInput').focus();
+    }
+
+    // 确认毒药：校验单词属于本话题词表（忽略大小写）
+    function confirmPoison() {
+      const raw = $('poisonInput').value.trim().toLowerCase();
+      const t = TOPICS[state.topicKey];
+      if (!raw) { $('setHint').textContent = '⚠️ 请输入一个单词'; $('setHint').style.color = '#f87171'; return; }
+      if (!/^[a-z]+$/.test(raw)) { $('setHint').textContent = '⚠️ 请输入英文字母（不含数字和符号）'; $('setHint').style.color = '#f87171'; return; }
+      if (!t.words.includes(raw)) {
+        $('setHint').textContent = '⚠️ "' + raw + '" 不在本主题候选词中，请从下方候选词选择';
+        $('setHint').style.color = '#f87171';
+        playWrong();
+        return;
+      }
+      state.poison = raw;
+      $('setHint').style.color = '';
+      $('setHint').textContent = '';
+      $('setReady').hidden = false;
+      $('setStartRow').hidden = false;
+      $('btnConfirmPoison').hidden = true;
+      $('poisonInput').value = '';
+      playBrew();
+      saveState();
+    }
+
+    // ========== 猜词页 ==========
+    function startGuess() {
+      $('guessRound').textContent = state.round;
+      $('guessTopic').textContent = TOPICS[state.topicKey].label;
+      $('guessInput').value = '';
+      $('message').textContent = '';
+      $('history').innerHTML = '';
+      state.phase = 'guess';
+      saveState();
+      show('sceneGuess');
+      updatePanel();
+      $('guessInput').focus();
+      playMagic();
+    }
+
+    // 学生猜词
+    function submitGuess() {
+      if (state.phase !== 'guess' || !state.poison) return;
+      const raw = $('guessInput').value.trim().toLowerCase();
+      if (!/^[a-z]+$/.test(raw)) { showMsg('请输入英文单词（只含字母）', true); return; }
+      if (raw === state.poison) {
+        // 猜中 → 中毒 + 小鬼升天
+        state.log.push({ topic: TOPICS[state.topicKey].label, word: state.poison });
+        state.phase = 'over';
+        saveState();
+        ghostRise();
+        return;
+      }
+      // 猜错
+      addHistoryTag(raw);
+      showMsg('❌ "' + raw + '" 不是毒药，再猜猜！', true);
+      playWrong();
+      $('guessInput').value = '';
+      $('guessInput').focus();
+    }
+    function showMsg(text, isError) {
+      const el = $('message');
+      el.textContent = text;
+      el.className = 'message' + (isError ? ' err' : '');
+    }
+    function addHistoryTag(word) {
+      const tag = document.createElement('span');
+      tag.className = 'history-tag';
+      tag.textContent = '✗ ' + word;
+      $('history').appendChild(tag);
+    }
+
+    // ========== 小鬼升天动画 ==========
+    function ghostRise() {
+      const overlay = $('ghostOverlay');
+      overlay.classList.add('active');
+      $('ghostWord').textContent = state.poison;
+      // 下一轮按钮文案
+      $('btnNextRound').textContent = state.round >= 5 ? '🎉 查看结果' : '➡️ 下一轮';
+      $('btnNextRound').className = 'btn-next' + (state.round >= 5 ? ' gold' : '');
+      // 清除旧的烟雾
+      overlay.querySelectorAll('.smoke').forEach(el => el.remove());
+      // 小鬼 + 烟雾 + 音效
+      spawnSmoke(overlay);
+      playGhost();
+      // 动画结束后自动显示下一轮（或手动点击）
+      overlay.querySelector('.ghost-emoji').style.animation = 'none';
+      void overlay.querySelector('.ghost-emoji').offsetWidth;
+      overlay.querySelector('.ghost-emoji').style.animation = '';
+    }
+    function spawnSmoke(overlay) {
+      for (let i = 0; i < 6; i++) {
+        const s = document.createElement('div');
+        s.className = 'smoke';
+        const size = 120 + Math.random() * 180;
+        s.style.width = s.style.height = size + 'px';
+        s.style.left = (20 + Math.random() * 60) + '%';
+        s.style.bottom = '10%';
+        s.style.setProperty('--t', (2 + Math.random() * 1.5) + 's');
+        overlay.appendChild(s);
+        s.addEventListener('animationend', () => s.remove());
+      }
+    }
+
+    // 下一轮 / 完成
+    function nextRound() {
+      $('ghostOverlay').classList.remove('active');
+      if (state.round >= 5) {
+        state.phase = 'done';
+        saveState();
+        showDone();
+      } else {
+        state.round += 1;
+        state.topicKey = null;
+        state.poison = null;
+        state.phase = 'topic';
+        saveState();
+        openTopic();
+      }
+    }
+    function showDone() {
+      const logEl = $('doneLog');
+      logEl.innerHTML = '';
+      state.log.forEach((item, i) => {
+        const row = document.createElement('div');
+        row.className = 'row';
+        row.innerHTML = '<span class="round">第' + (i + 1) + '轮</span><span>' + item.topic.replace(/^[^\s]+\s/, '') + '</span><span class="word">→ ' + item.word + '</span>';
+        logEl.appendChild(row);
+      });
+      show('sceneDone');
+      updatePanel();
+      playDone();
+    }
+
+    // ========== 音效（Web Audio 合成） ==========
+    let audioCtx = null;
+    function ac() {
+      try {
+        if (!audioCtx) {
+          const C = window.AudioContext || window.webkitAudioContext;
+          if (!C) return null;
+          audioCtx = new C();
+        }
+        return audioCtx;
+      } catch (e) { return null; }
+    }
+    function tone(freq, t0, dur, type, vol) {
+      const c = ac(); if (!c) return;
+      try {
+        const o = c.createOscillator();
+        const g = c.createGain();
+        o.type = type || 'sine';
+        o.frequency.value = freq;
+        const t = c.currentTime + t0;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(vol || 0.2, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+        o.connect(g); g.connect(c.destination);
+        o.start(t); o.stop(t + dur + 0.05);
+      } catch (e) {}
+    }
+    function playMagic() { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.1, 0.5, 'sine', 0.15)); }
+    function playBrew() { tone(180, 0, 0.3, 'triangle', 0.25); tone(240, 0.15, 0.35, 'triangle', 0.2); }
+    function playWrong() { tone(200, 0, 0.25, 'square', 0.08); tone(150, 0.12, 0.3, 'square', 0.07); }
+    function playGhost() {
+      // 诡异下行滑音
+      const c = ac(); if (!c) return;
+      try {
+        const o = c.createOscillator();
+        const g = c.createGain();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(880, c.currentTime);
+        o.frequency.exponentialRampToValueAtTime(110, c.currentTime + 1.6);
+        g.gain.setValueAtTime(0.12, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 1.8);
+        o.connect(g); g.connect(c.destination);
+        o.start(); o.stop(c.currentTime + 1.9);
+        [440, 330, 220].forEach((f, i) => tone(f, 0.2 + i * 0.25, 0.4, 'sine', 0.1));
+      } catch (e) {}
+    }
+    function playDone() { [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, i * 0.14, 0.6, 'sine', 0.18)); }
+
+    // ========== 事件绑定 ==========
+    bind($('btnStart'), openTopic);
+    bind($('btnHome'), goHome);
+    bind($('btnConfirmPoison'), confirmPoison);
+    bind($('btnStartGame'), startGuess);
+    bind($('btnReSet'), openSet);
+    bind($('btnGuess'), submitGuess);
+    bind($('btnNextRound'), nextRound);
+    bind($('btnAgain'), goHome);
+
+    // 毒药输入：只允许字母（不显示任何字母数量，防止泄露单词长度）
+    $('poisonInput').addEventListener('input', () => {
+      $('poisonInput').value = $('poisonInput').value.replace(/[^a-zA-Z]/g, '');
+      $('setHint').textContent = '';
+    });
+    $('poisonInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') confirmPoison(); });
+    $('guessInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitGuess(); });
+
+    // ========== 初始化 ==========
+    function init() {
+      loadState();
+      updatePanel();
+      // 根据已保存的进度恢复场景
+      if (state.phase === 'topic') openTopic();
+      else if (state.phase === 'set' && state.topicKey) openSet();
+      else if (state.phase === 'guess' && state.topicKey && state.poison) startGuess();
+      else if (state.phase === 'done') showDone();
+      else { state.phase = 'home'; show('sceneHome'); }
+    }
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>

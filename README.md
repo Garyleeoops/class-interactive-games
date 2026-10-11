@@ -9,6 +9,7 @@
 | `index.html` | 网站主文件（首页游戏中心 + 三个排序游戏，页内 hash 路由切换） |
 | `games/abstract-game.html` | Abstract 结构闯关（独立游戏文件，由主文件 iframe 加载） |
 | `games/title-game.html` | Title Match 挑战（独立游戏文件，由主文件 iframe 加载） |
+| `games/icebreaker-game.html` | Witch's Poison 女巫的毒药（破冰猜词，独立游戏文件） |
 
 - 首页：`#home`（默认）—— 游戏列表与课堂使用提示
 - 排序游戏（单文件内嵌）：
@@ -18,8 +19,9 @@
 - 复杂游戏（独立文件，iframe 懒加载）：
   - `#game-abstract` —— Abstract 结构闯关（迷宫 + 摘要结构分类，5 关）
   - `#game-title` —— Title Match 挑战（台阶 + 摘要选标题，5 关）
+  - `#game-icebreaker` —— Witch's Poison 女巫的毒药（破冰猜词，5 轮）
 
-五个游戏的句子/论文内容互不重复。两个复杂游戏各自带姓名登录与 localStorage 防重复机制（每人限玩一次、可续玩）。注意：Abstract 与 Title 两个游戏共用同一批 5 篇论文素材（一个做结构分类、一个做标题匹配），如需彻底隔离可更换其中一方的素材。
+六个游戏的内容互不重复。Abstract / Title 两个游戏自带姓名登录与 localStorage 防重复机制（每人限玩一次、可续玩）；Witch's Poison 会保存游戏进度（刷新后可从断点继续）。注意：Abstract 与 Title 两个游戏共用同一批 5 篇论文素材（一个做结构分类、一个做标题匹配），如需彻底隔离可更换其中一方的素材。
 
 ## 课堂使用
 
@@ -57,7 +59,7 @@ python -m http.server 8777
 
 直接编辑文字即可，游戏会自动适应卡片数量、进度条与编号，无需改其他代码。
 
-Abstract / Title 两个复杂游戏的内容（5 篇论文的标题、摘要、句子块与干扰项）在各自游戏文件 `<script>` 的 `ROUNDS` 数组里，直接编辑即可。
+Abstract / Title 两个复杂游戏的内容（5 篇论文的标题、摘要、句子块与干扰项）在各自游戏文件 `<script>` 的 `ROUNDS` 数组里，直接编辑即可。Witch's Poison 的主题与词汇表在 `icebreaker-game.html` 的 `TOPICS` 对象里（每主题 10 词，可增删）。
 
 ## 添加新游戏
 
